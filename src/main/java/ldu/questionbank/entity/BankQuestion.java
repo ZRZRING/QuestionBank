@@ -18,9 +18,9 @@ public class BankQuestion {
 
     @ManyToOne
     @JoinColumn(name = "bank_id", nullable = false)
-    private Bank bank;
+    private Bank bankId;
 
     @ManyToOne
     @JoinColumn(name = "question_id", nullable = false)
-    private Question question;
+    private Question questionId;
 }

@@ -17,4 +17,3 @@ student：加入题库，题目联系
 admin表、teacher表、student表、题目表、题库表
 
 题目-题库表、student-题库表、教师-题库表
-

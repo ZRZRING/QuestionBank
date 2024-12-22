@@ -18,10 +18,10 @@ public class StudentBank {
 
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
-    private Student student;
+    private Student studentId;
 
     @ManyToOne
     @JoinColumn(name = "bank_id", nullable = false)
-    private Bank bank;
+    private Bank bankId;
 }
 
