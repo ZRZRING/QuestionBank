@@ -1,8 +1,7 @@
-package ldu.questionbank.student.controller;
+package ldu.questionbank.controller;
 
-import ldu.questionbank.student.service.StudentService;
+import ldu.questionbank.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 日期: 2024/12/21 20:46
  */
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/api/student")
 public class StudentController {
     @Autowired
     private StudentService studentService;

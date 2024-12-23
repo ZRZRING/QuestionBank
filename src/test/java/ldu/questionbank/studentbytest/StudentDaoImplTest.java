@@ -1,12 +1,11 @@
 package ldu.questionbank.studentbytest;
 
 
-import ldu.questionbank.student.repository.StudentDao;
+import ldu.questionbank.repo.StudentDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
 @SpringBootTest
 class StudentDaoImplTest {

@@ -21,7 +21,8 @@ public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
     @Column(name = "statement", nullable = false, columnDefinition = "TEXT")
     private String statement;
@@ -32,7 +33,6 @@ public class Question {
     @Column(name = "answers", nullable = false, length = 100)
     private String answers;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
-    private Teacher createdBy;
+    @Column(name = "created_by", nullable = false)
+    private Integer createdBy;
 }

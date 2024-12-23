@@ -1,7 +1,6 @@
-package ldu.questionbank.student.service;
+package ldu.questionbank.service;
 
-import ldu.questionbank.student.repository.StudentDao;
-import org.hibernate.annotations.Array;
+import ldu.questionbank.repo.StudentDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package ldu.questionbank.student.repository;
+package ldu.questionbank.repo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

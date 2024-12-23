@@ -14,14 +14,13 @@ public class StudentBank {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
-    private Student studentId;
+    @Column(name = "student_id", nullable = false)
+    private Integer studentId;
 
-    @ManyToOne
-    @JoinColumn(name = "bank_id", nullable = false)
-    private Bank bankId;
+    @Column(name = "bank_id", nullable = false)
+    private Integer bankId;
 }
 

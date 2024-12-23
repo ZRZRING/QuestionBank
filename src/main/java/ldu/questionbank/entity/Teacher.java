@@ -18,7 +18,8 @@ import lombok.NoArgsConstructor;
 public class Teacher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
