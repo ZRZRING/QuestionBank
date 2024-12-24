@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 日期: 2024/12/21 20:46
  */
 @RestController
-@RequestMapping("/api/student")
+@RequestMapping("/api/students")
 public class StudentController {
     @Autowired
     private StudentService studentService;
