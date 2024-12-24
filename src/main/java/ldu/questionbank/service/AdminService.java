@@ -1,6 +1,6 @@
 package ldu.questionbank.service;
 
-import ldu.questionbank.repo.AdminRepo;
+import ldu.questionbank.dao.AdminDao;
 import ldu.questionbank.entity.Admin;
 import org.springframework.stereotype.Service;
 
@@ -8,17 +8,17 @@ import java.util.List;
 
 @Service
 public class AdminService {
-    AdminRepo adminRepo;
+    AdminDao adminDao;
 
-    public AdminService(AdminRepo adminRepo) {
-        this.adminRepo = adminRepo;
+    public AdminService(AdminDao adminDao) {
+        this.adminDao = adminDao;
     }
 
     public List<Admin> getAllAdmins() {
-        return adminRepo.getAllAdmins();
+        return adminDao.getAllAdmins();
     }
 
     public Admin getAdminById(Integer id) {
-        return adminRepo.getAdminById(id);
+        return adminDao.getAdminById(id);
     }
 }

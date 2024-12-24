@@ -1,4 +1,4 @@
-package ldu.questionbank.repo;
+package ldu.questionbank.dao;
 
 import ldu.questionbank.entity.Admin;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class AdminRepo {
+public class AdminDao {
     JdbcTemplate jdbcTemplate;
 
-    public AdminRepo(JdbcTemplate jdbcTemplate) {
+    public AdminDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
