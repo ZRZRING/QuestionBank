@@ -1,6 +1,6 @@
 package ldu.questionbank.service;
 
-import ldu.questionbank.dao.QuestionDao;
+import ldu.questionbank.repo.QuestionDao;
 import ldu.questionbank.entity.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
