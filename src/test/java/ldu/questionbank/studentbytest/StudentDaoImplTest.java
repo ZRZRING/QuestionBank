@@ -1,7 +1,7 @@
 package ldu.questionbank.studentbytest;
 
 
-import ldu.questionbank.repo.StudentDao;
+import ldu.questionbank.dao.StudentDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
