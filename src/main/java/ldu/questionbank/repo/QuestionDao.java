@@ -1,4 +1,4 @@
-package ldu.questionbank.dao;
+package ldu.questionbank.repo;
 
 import ldu.questionbank.entity.Question;
 import org.springframework.beans.factory.annotation.Autowired;
