@@ -33,7 +33,6 @@ public class Bank {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
-    private Teacher createdBy;
+    private Integer createdBy;
 }
