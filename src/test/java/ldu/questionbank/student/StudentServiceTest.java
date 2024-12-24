@@ -1,4 +1,4 @@
-package ldu.questionbank.studentbytest;
+package ldu.questionbank.student;
 
 import ldu.questionbank.service.StudentService;
 import org.junit.jupiter.api.Test;

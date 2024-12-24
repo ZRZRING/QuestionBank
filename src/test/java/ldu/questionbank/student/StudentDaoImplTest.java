@@ -1,4 +1,4 @@
-package ldu.questionbank.studentbytest;
+package ldu.questionbank.student;
 
 
 import ldu.questionbank.dao.StudentDao;

@@ -1,8 +1,7 @@
-package ldu.questionbank.studentbytest;
+package ldu.questionbank.student;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class StudentControllerTest {
 
