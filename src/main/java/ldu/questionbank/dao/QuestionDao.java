@@ -15,7 +15,6 @@ public class QuestionDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public QuestionDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
