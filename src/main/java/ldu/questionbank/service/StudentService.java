@@ -1,8 +1,11 @@
 package ldu.questionbank.service;
 
 import ldu.questionbank.dao.StudentDao;
+import ldu.questionbank.entity.Bank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 功能: 定义 service 与 dao 层的交互
@@ -11,8 +14,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StudentService {
+
     @Autowired
-    private StudentDao studentDao = new StudentDao();
+    private StudentDao studentDao;
 
 
     /**
@@ -24,5 +28,8 @@ public class StudentService {
         return studentDao.getPasswordFromBankById(id);
     }
 
+    public List<Bank> findAllBank(){
+        return studentDao.findAllBank();
+    }
 
 }
