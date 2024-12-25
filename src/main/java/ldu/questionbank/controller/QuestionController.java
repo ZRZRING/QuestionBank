@@ -50,7 +50,7 @@ public class QuestionController {
         return ResponseEntity.ok(question);
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<Question> updateQuestion(@PathVariable int id, @RequestBody Question question) {
         if (question == null) {
             return ResponseEntity.badRequest().build();  // 返回400 Bad Request

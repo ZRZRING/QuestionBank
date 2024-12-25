@@ -21,4 +21,16 @@ public class AdminService {
     public Admin getAdminById(Integer id) {
         return adminDao.getAdminById(id);
     }
+
+    public void addAdmin(Admin admin) {
+        adminDao.addAdmin(admin);
+    }
+
+    public void updateAdmin(Admin admin) {
+        adminDao.updateAdmin(admin);
+    }
+
+    public void deleteAdmin(Integer id) {
+        adminDao.deleteAdmin(id);
+    }
 }
