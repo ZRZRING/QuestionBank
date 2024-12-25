@@ -27,4 +27,19 @@ public class AdminDao {
         RowMapper<Admin> rowMapper = new BeanPropertyRowMapper<>(Admin.class);
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
     }
+
+    public void addAdmin(Admin admin) {
+        String sql = "INSERT INTO admin (username, password) VALUES (?, ?)";
+        jdbcTemplate.update(sql, admin.getUsername(), admin.getPassword());
+    }
+
+    public void updateAdmin(Admin admin) {
+        String sql = "UPDATE admin SET username = ?, password = ? WHERE id = ?";
+        jdbcTemplate.update(sql, admin.getUsername(), admin.getPassword(), admin.getId());
+    }
+
+    public void deleteAdmin(Integer id) {
+        String sql = "DELETE FROM admin WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
 }
