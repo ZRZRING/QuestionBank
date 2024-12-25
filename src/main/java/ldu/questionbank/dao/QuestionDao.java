@@ -27,4 +27,31 @@ public class QuestionDao {
         RowMapper<Question> rowMapper = new BeanPropertyRowMapper<>(Question.class);
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
     }
+
+    public List<Question> findByStatement(String statement) {
+        String sql = "SELECT * FROM question WHERE statement LIKE ?";
+        RowMapper<Question> rowMapper = new BeanPropertyRowMapper<>(Question.class);
+        return jdbcTemplate.query(sql, rowMapper, "%" + statement + "%");
+    }
+
+    public void save(Question question) {
+        String sql = "INSERT INTO question (statement, options, answers, createdBy) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.update(sql, question.getStatement(), question.getOptions(), question.getAnswers(), question.getCreatedBy());
+    }
+
+    public void deleteById(Integer id) {
+        String sql = "DELETE FROM question WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    public void update(Question question) {
+        String sql = "UPDATE question SET statement = ?, options = ?, answers = ?, createdBy = ? WHERE id = ?";
+        jdbcTemplate.update(sql,
+                question.getStatement(),
+                question.getOptions(),
+                question.getAnswers(),
+                question.getCreatedBy(),
+                question.getId());
+    }
+
 }
