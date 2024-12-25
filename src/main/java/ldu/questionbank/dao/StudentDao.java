@@ -1,6 +1,6 @@
 package ldu.questionbank.dao;
 
-import ldu.questionbank.entity.Bank;
+import ldu.questionbank.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -45,4 +45,43 @@ public class StudentDao {
     }
 
 
+    public Student getMessageFromStudentsById(Integer id) {
+        String sql = "select * from student where id = ?";
+        RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
+        return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+
+    public List<StudentBank> findAllStudentBank() {
+        String sql = "select * from student_bank";
+        RowMapper<StudentBank> rowMapper = BeanPropertyRowMapper.newInstance(StudentBank.class);
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public List<BankQuestion> findAllBankQuestions(Integer bankId) {
+        String sql = "select * from bank_question where bank_id = ?";
+        RowMapper<BankQuestion> rowMapper = BeanPropertyRowMapper.newInstance(BankQuestion.class);
+        return jdbcTemplate.query(sql, rowMapper, bankId);
+    }
+
+    public List<Question> findAllQuestions() {
+        String sql = "select * from question";
+        RowMapper<Question> rowMapper = BeanPropertyRowMapper.newInstance(Question.class);
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public void deletestudentBankById(Integer id) {
+        String sql ="delete from student_bank where id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    public Question findQuestionById(Integer questionId) {
+        String sql = "select * from question where id = ?";
+        RowMapper<Question> rowMapper = BeanPropertyRowMapper.newInstance(Question.class);
+        return jdbcTemplate.queryForObject(sql, rowMapper, questionId);
+    }
+
+    public void addStudentBank(Integer studentId, Integer bankId) {
+        String sql = "Insert into student_bank(student_id, bank_id) values(?,?)";
+        jdbcTemplate.update(sql, studentId, bankId);
+    }
 }

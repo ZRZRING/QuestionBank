@@ -5,12 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Question {
     private Integer id;
     private String statement;
     private String options;
     private String answers;
     private Integer createdBy;
+
 }

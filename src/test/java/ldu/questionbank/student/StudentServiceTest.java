@@ -2,6 +2,7 @@ package ldu.questionbank.student;
 
 import ldu.questionbank.dao.StudentDao;
 import ldu.questionbank.entity.Bank;
+import ldu.questionbank.entity.StudentBank;
 import ldu.questionbank.service.StudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,14 @@ class StudentServiceTest {
             Bank bank = new Bank();
             bank.setId(1);
             System.out.println(bank.getId());
+        }
+
+        @Test
+    public void test2(){
+            studentService.addStudentBanks(1,1);
+            List<StudentBank> studentBanks = studentService.findAllStudentBank();
+            for (StudentBank studentBank : studentBanks) {
+                System.out.println(studentBank.toString());
+            }
         }
 }
