@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目详情</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 24px;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #555;
+        }
+
+        td {
+            background-color: #fafafa;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* 按钮样式 */
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        .navigate-button {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .navigate-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 答案选择样式 */
+        .radio-options {
+            margin-top: 10px;
+        }
+
+        .radio-options label {
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .result-message {
+            font-size: 18px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* 上一题和下一题按钮的排列 */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            background-color: #f1f1f1;
+            padding: 8px 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .pagination button:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            #app {
+                width: 95%;
+                padding: 10px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <h2>题目详情</h2>
+
+    <div v-if="question">
+        <!-- 显示题目详情 -->
+        <table border="1">
+            <thead>
+            <tr>
+                <th>字段</th>
+                <th>值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><strong>题目ID</strong></td>
+                <td>{{ question.id }}</td>
+            </tr>
+            <tr>
+                <td><strong>题目内容</strong></td>
+                <td>{{ question.statement }}</td>
+            </tr>
+            <tr>
+                <td><strong>选项</strong></td>
+                <td>
+                    <div v-for="(option, index) in question.options.split(',')" :key="index" class="radio-options">
+                        <label>
+                            <input type="radio"
+                                   :name="'question_' + question.id"
+                                   :value="option"
+                                   v-model="userAnswer">
+                            {{ option }}
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>创建者ID</strong></td>
+                <td>{{ question.createdBy }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 提交答案按钮 -->
+        <button @click="submitAnswer" class="submit-button">提交答案</button>
+
+        <!-- 显示用户是否答对 -->
+        <div v-if="result !== null" class="result-message">
+            <p v-if="result">恭喜，答对了！</p>
+            <p v-else>很遗憾，答错了。正确答案是：{{ question.answers }}</p>
+        </div>
+
+        <!-- 上一个和下一个题目按钮 -->
+        <div class="navigation-buttons">
+            <button v-if="previousQuestionId" @click="navigateToQuestion(previousQuestionId)" class="navigate-button">上一题</button>
+            <button v-if="nextQuestionId" @click="navigateToQuestion(nextQuestionId)" class="navigate-button">下一题</button>
+        </div>
+    </div>
+
+    <div v-else>
+        <p>加载中...</p>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                question: null,  // 存储当前题目信息
+                userAnswer: '',  // 存储用户选择的答案
+                result: null,  // 存储用户答题结果，null代表未作答
+                questions: [],  // 存储题库中的所有题目
+                previousQuestionId: null,  // 上一题的ID
+                nextQuestionId: null,  // 下一题的ID
+            };
+        },
+        created() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const questionId = urlParams.get('questionId');  // 获取URL中的questionId参数
+
+            if (questionId) {
+                this.getQuestionDetails(questionId);  // 获取当前题目详情
+                this.getQuestions();  // 获取题库中的所有题目
+            } else {
+                console.error('没有提供题目ID');
+            }
+        },
+        methods: {
+            // 获取题库中的所有题目
+            getQuestions() {
+                axios.get('http://localhost:8080/api/students/getAllQuestions')  // 假设API能返回所有题目
+                    .then(response => {
+                        this.questions = response.data.data;
+                    })
+                    .catch(error => {
+                        console.error('获取题库失败', error);
+                    });
+            },
+
+            // 获取题目详情
+            getQuestionDetails(questionId) {
+                axios.post(`http://localhost:8080/api/students/findQuestionById/${questionId}`)
+                    .then(response => {
+                        this.question = response.data.data;  // 保存题目信息
+                        this.updateNavigation(questionId);  // 更新上一题和下一题的ID
+                    })
+                    .catch(error => {
+                        console.error('获取题目信息失败', error);
+                    });
+            },
+
+            // 更新上一题和下一题的ID
+            updateNavigation(currentQuestionId) {
+                const currentIndex = this.questions.findIndex(q => q.id === currentQuestionId);
+
+                if (currentIndex !== -1) {
+                    this.previousQuestionId = currentIndex > 0 ? this.questions[currentIndex - 1].id : null;
+                    this.nextQuestionId = currentIndex < this.questions.length - 1 ? this.questions[currentIndex + 1].id : null;
+                }
+            },
+
+            // 提交答案并检查是否正确
+            submitAnswer() {
+                if (!this.userAnswer) {
+                    alert('请选择一个答案！');
+                    return;
+                }
+
+                // 判断答案是否正确
+                if (this.userAnswer === this.question.answers) {
+                    this.result = true;  // 用户答对了
+                } else {
+                    this.result = false;  // 用户答错了
+                }
+            },
+
+            // 跳转到指定的题目
+            navigateToQuestion(questionId) {
+                if (questionId) {
+                    window.location.href = `work_question.html?questionId=${questionId}`;
+                }
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
+</body>
+</html>

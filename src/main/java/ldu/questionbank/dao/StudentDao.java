@@ -57,10 +57,10 @@ public class StudentDao {
         return jdbcTemplate.query(sql, rowMapper);
     }
 
-    public List<BankQuestion> findAllBankQuestions(Integer bankId) {
-        String sql = "select * from bank_question where bank_id = ?";
+    public List<BankQuestion> findAllBankQuestions() {
+        String sql = "select * from bank_question ";
         RowMapper<BankQuestion> rowMapper = BeanPropertyRowMapper.newInstance(BankQuestion.class);
-        return jdbcTemplate.query(sql, rowMapper, bankId);
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     public List<Question> findAllQuestions() {
@@ -84,4 +84,19 @@ public class StudentDao {
         String sql = "Insert into student_bank(student_id, bank_id) values(?,?)";
         jdbcTemplate.update(sql, studentId, bankId);
     }
+
+    public List<Bank> fuzzyQueryByBankName(String bankName) {
+        String sql="select * from bank where name like ?";
+        RowMapper<Bank> rowMapper = BeanPropertyRowMapper.newInstance(Bank.class);
+        return jdbcTemplate.query(sql, new Object[]{"%" + bankName + "%"}, rowMapper);
+    }
+
+
+    public Bank findBankById(Integer bankId) {
+       String sql = "select * from bank where id = ?";
+       RowMapper<Bank> rowMapper = BeanPropertyRowMapper.newInstance(Bank.class);
+       return jdbcTemplate.queryForObject(sql, rowMapper, bankId);
+    }
+
+
 }

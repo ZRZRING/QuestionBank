@@ -36,8 +36,8 @@ public class StudentService {
         return studentDao.findAllStudentBank();
     }
 
-    public List<BankQuestion> findAllBankQuestions(Integer bankId) {
-        return studentDao.findAllBankQuestions(bankId);
+    public List<BankQuestion> findAllBankQuestions() {
+        return studentDao.findAllBankQuestions();
     }
 
     public List<Question> findAllQuestions() {
@@ -56,4 +56,14 @@ public class StudentService {
     public void addStudentBanks(Integer studentId, Integer bankId) {
         studentDao.addStudentBank(studentId,bankId);
     }
+
+    public List<Bank> fuzzyQueryByBankName(String bankName) {
+       return studentDao.fuzzyQueryByBankName(bankName);
+    }
+
+    public Bank findBankById(Integer bankId) {
+        return studentDao.findBankById(bankId);
+    }
+
+
 }

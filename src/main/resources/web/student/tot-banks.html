@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>总题库</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        #app {
+            width: 80%;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* 输入框和按钮样式 */
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            margin: 10px 0;
+            width: 80%;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .password-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .popup-content {
+            background-color: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .popup-content input {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover {
+            background-color: #45a049;
+        }
+
+        .pagination p {
+            margin: 0 15px;
+            font-size: 16px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <h2>所有题库信息</h2>
+
+    <!-- 模糊查询输入框 -->
+    <div>
+        <input type="text" v-model="query" placeholder="请输入题库名称进行查询" />
+        <button @click="fuzzyQueryBanks">查询</button>
+    </div>
+
+    <!-- 表格显示所有题库 -->
+    <table>
+        <thead>
+        <tr>
+            <th>题库名称</th>
+            <th>题库描述</th>
+            <th>创建时间</th>
+            <th>题库ID</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(bank, index) in paginatedBanks" :key="bank.id">
+            <td>{{ bank.name }}</td>
+            <td>{{ bank.description }}</td>
+            <td>{{ bank.createdDate }}</td>
+            <td>{{ bank.id }}</td>
+            <td>
+                <button @click="addBank(bank)">增加</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 分页 -->
+    <div v-if="filteredBanks.length > 0" class="pagination">
+        <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
+        <button @click="nextPage" :disabled="currentPage >= totalPages">下一页</button>
+        <p>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</p>
+    </div>
+
+    <!-- 密码输入框 -->
+    <div v-if="showPasswordPrompt" class="password-popup">
+        <div class="popup-content">
+            <h3>请输入密码</h3>
+            <input type="password" v-model="password" placeholder="请输入密码">
+            <button @click="submitPassword">确认</button>
+            <button @click="cancelPasswordPrompt">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                banks: [],  // 所有题库
+                filteredBanks: [],  // 用于存储筛选后的题库
+                studentId: 1,  // 假设学生ID为1，可以根据实际情况调整
+                currentPage: 1,
+                pageSize: 5,
+                password: '',  // 密码输入框
+                showPasswordPrompt: false,  // 控制密码弹框显示
+                selectedBank: null,  // 当前选择的题库
+                query: '',  // 模糊查询输入框的值
+            };
+        },
+        computed: {
+            totalPages() {
+                return Math.ceil(this.filteredBanks.length / this.pageSize);
+            },
+            paginatedBanks() {
+                const start = (this.currentPage - 1) * this.pageSize;
+                const end = start + this.pageSize;
+                return this.filteredBanks.slice(start, end);
+            }
+        },
+        created() {
+            this.getAllBanks();
+        },
+        methods: {
+            // 获取所有题库信息
+            getAllBanks() {
+                axios.get('http://localhost:8080/api/students/findAllBanks')
+                    .then(response => {
+                        this.banks = response.data.data;
+                        this.filteredBanks = this.banks; // 初始时将所有题库赋给 filteredBanks
+                    })
+                    .catch(error => {
+                        console.error('获取题库失败', error);
+                    });
+            },
+
+            // 上一页
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                }
+            },
+
+            // 下一页
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                }
+            },
+
+            // 基于题库名称进行模糊查询
+            fuzzyQueryBanks() {
+                if (this.query.trim() === '') {
+                    this.filteredBanks = this.banks; // 如果没有输入内容，显示所有题库
+                } else {
+                    axios.post(`http://localhost:8080/api/students/fuzzyQueryByBankName/${this.query}`)
+                        .then(response => {
+                            this.filteredBanks = response.data.data;
+                            this.currentPage = 1; // 查询后，重置分页到第一页
+                        })
+                        .catch(error => {
+                            console.error('查询失败', error);
+                        });
+                }
+            },
+
+            // 增加题库
+            addBank(bank) {
+                this.selectedBank = bank;
+                this.showPasswordPrompt = true; // 显示密码输入框
+            },
+
+            // 提交密码
+            submitPassword() {
+                const password = this.password;
+                // 调用接口验证密码
+                axios.get(`http://localhost:8080/api/students/getPasswordFromBanksById/${this.selectedBank.id}`)
+                    .then(response => {
+                        if (response.data.data === password) {
+                            this.addStudentBank(this.selectedBank.id);
+                        } else {
+                            alert('密码错误');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('密码验证失败', error);
+                        alert('密码验证失败');
+                    })
+                    .finally(() => {
+                        this.password = '';
+                        this.showPasswordPrompt = false;
+                    });
+            },
+
+            // 取消密码输入框
+            cancelPasswordPrompt() {
+                this.showPasswordPrompt = false;
+                this.password = '';
+            },
+
+            // 添加题库到学生的已选择题库
+            addStudentBank(bankId) {
+                axios.post(`http://localhost:8080/api/students/addStudentBank/${this.studentId}/${bankId}`)
+                    .then(response => {
+                        alert('题库添加成功');
+                    })
+                    .catch(error => {
+                        console.error('添加题库失败', error);
+                        alert('添加题库失败');
+                    });
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
+
+</body>
+</html>

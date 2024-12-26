@@ -2,9 +2,403 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生题库管理</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        #app {
+            width: 80%;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* 学生信息模块 */
+        .student-info {
+            margin-bottom: 30px;
+        }
+
+        .student-info p {
+            font-size: 18px;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* 分页样式 */
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .pagination button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .pagination p {
+            font-size: 16px;
+            color: #888;
+        }
+
+        /* 查询模块 */
+        .search-bar {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        .search-bar button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .search-bar button:hover {
+            background-color: #45a049;
+        }
+
+        .search-result p {
+            text-align: center;
+            color: #888;
+        }
+
+        /* 查询结果表格样式 */
+        .search-result table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .search-result th, .search-result td {
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .search-result th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .button-action {
+            padding: 12px 25px;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            font-size: 16px;
+            margin-right: 10px; /* 为按钮之间添加间距 */
+        }
+
+        .button-action:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button-action:focus {
+            outline: none;
+        }
+
+
+    </style>
 </head>
 <body>
+<div id="app">
+    <!-- 学生信息模块 -->
+    <div class="student-info">
+        <h2>学生信息</h2>
+        <p><strong>学生ID:</strong> {{ student.id }}</p>
+        <p><strong>学生姓名:</strong> {{ student.username }}</p>
+        <p><strong>学生密码:</strong> {{ student.password }}</p>
+        <button @click="goToTotalBanks">进入总题库</button>
+    </div>
 
+    <!-- 已选择的题库模块 -->
+    <div>
+        <h2>已选择的题库</h2>
+        <div v-if="studentBanks.length === 0">
+            <p>没有选择任何题库</p>
+        </div>
+        <div v-else>
+            <table>
+                <thead>
+                <tr>
+                    <th>题库名称</th>
+                    <th>题库描述</th>
+                    <th>创建时间</th>
+                    <th>题库ID</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(bank, index) in paginatedBanks" :key="bank.id">
+                    <td>{{ bank.name }}</td>
+                    <td>{{ bank.description }}</td>
+                    <td>{{ bank.createdDate }}</td>
+                    <td>{{ bank.id }}</td>
+                    <td>
+                        <button @click="goToBank(bank.id)" class="button-action">进入该题库</button>
+                        <button @click="removeBank(bank.id)" class="button-action">删除</button>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" v-if="studentBanks.length > 0">
+            <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
+            <button @click="nextPage" :disabled="currentPage >= totalPages">下一页</button>
+            <p>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</p>
+        </div>
+    </div>
+
+    <!-- 查询模块 -->
+    <div class="search-bar">
+        <h2>题库查询</h2>
+        <input v-model="searchQuery" placeholder="请输入题库名称进行查询" />
+        <button @click="searchBanks">提交查询</button>
+    </div>
+
+    <div class="search-result">
+        <div v-if="filteredBanks.length === 0 && searchQuery !== ''">
+            <p>没有匹配的题库</p>
+        </div>
+        <div v-else>
+            <table>
+                <thead>
+                <tr>
+                    <th>题库名称</th>
+                    <th>题库描述</th>
+                    <th>创建时间</th>
+                    <th>题库ID</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(bank, index) in paginatedFilteredBanks" :key="bank.id">
+                    <td>{{ bank.name }}</td>
+                    <td>{{ bank.description }}</td>
+                    <td>{{ bank.createdDate }}</td>
+                    <td>{{ bank.id }}</td>
+                    <td>
+                        <button @click="goToBank(bank.id)">进入该题库</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 查询分页 -->
+        <div class="pagination" v-if="filteredBanks.length > 0">
+            <button @click="prevFilteredPage" :disabled="currentFilteredPage === 1">上一页</button>
+            <button @click="nextFilteredPage" :disabled="currentFilteredPage >= totalFilteredPages">下一页</button>
+            <p>第 {{ currentFilteredPage }} 页 / 共 {{ totalFilteredPages }} 页</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                student: {},
+                studentBanks: [],
+                filteredBanks: [],
+                searchQuery: "",
+                currentPage: 1,
+                currentFilteredPage: 1,
+                pageSize: 5,
+            };
+        },
+        computed: {
+            totalPages() {
+                return Math.ceil(this.studentBanks.length / this.pageSize);
+            },
+            paginatedBanks() {
+                const start = (this.currentPage - 1) * this.pageSize;
+                const end = start + this.pageSize;
+                return this.studentBanks.slice(start, end);
+            },
+            totalFilteredPages() {
+                return Math.ceil(this.filteredBanks.length / this.pageSize);
+            },
+            paginatedFilteredBanks() {
+                const start = (this.currentFilteredPage - 1) * this.pageSize;
+                const end = start + this.pageSize;
+                return this.filteredBanks.slice(start, end);
+            }
+        },
+        created() {
+            const studentId = 1;
+            this.getStudentInfo(studentId);
+            this.getStudentBanks(studentId);
+        },
+        methods: {
+            getStudentInfo(studentId) {
+                axios.post(`http://localhost:8080/api/students/getMessageFromStudentsById/${studentId}`)
+                    .then(response => {
+                        this.student = response.data.data;
+                    })
+                    .catch(error => {
+                        console.error('获取学生信息失败', error);
+                    });
+            },
+            getStudentBanks(studentId) {
+                axios.post(`http://localhost:8080/api/students/getStudentBankByStudentId/${studentId}`, { studentId })
+                    .then(response => {
+                        this.studentBanks = response.data.data;
+                        this.filteredBanks = [...this.studentBanks];
+                    })
+                    .catch(error => {
+                        console.error('获取已选择题库失败', error);
+                    });
+            },
+            searchBanks() {
+                if (this.searchQuery) {
+                    this.filteredBanks = this.studentBanks.filter(bank =>
+                        bank.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                } else {
+                    this.filteredBanks = [...this.studentBanks];
+                }
+            },
+            goToTotalBanks() {
+                window.location.href = 'tot-banks.html';
+            },
+            goToBank(bankId) {
+                window.location.href = `work.html?bankId=${bankId}`;
+            },
+            removeBank(bankId) {
+                const studentId = this.student.id;
+                axios.post(`http://localhost:8080/api/students/deleteStudentBankById/${studentId}/${bankId}`)
+                    .then(() => {
+                        this.getStudentBanks(studentId);
+                    })
+                    .catch(error => {
+                        console.error('删除题库失败', error);
+                    });
+            },
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                }
+            },
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                }
+            },
+            prevFilteredPage() {
+                if (this.currentFilteredPage > 1) {
+                    this.currentFilteredPage--;
+                }
+            },
+            nextFilteredPage() {
+                if (this.currentFilteredPage < this.totalFilteredPages) {
+                    this.currentFilteredPage++;
+                }
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
 </body>
 </html>

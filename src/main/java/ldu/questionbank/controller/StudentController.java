@@ -44,7 +44,7 @@ public class StudentController {
 
     // 通过该学生Id 查询 该学生已经选择的题库信息
     @PostMapping("/getStudentBankByStudentId/{studentId}")
-    public Result getStudentBankByStudentId(@RequestParam(value = "studentId") Integer studentId) {
+    public Result getStudentBankByStudentId(@PathVariable(value = "studentId") Integer studentId) {
         List<Bank> banks_student = new ArrayList<Bank>();
         List<Integer> ids = new ArrayList<Integer>();
         List<StudentBank> studentBanks = studentService.findAllStudentBank();
@@ -53,6 +53,7 @@ public class StudentController {
                 ids.add(studentBank.getBankId());
             }
         }
+        System.out.println("StudentID=     "+studentId);
         List<Bank> banks = studentService.findAllBank();
         for (Bank bank : banks) {
             for (Integer id : ids) {
@@ -67,9 +68,10 @@ public class StudentController {
     // 通过题库 Id 找到 题库中包含的题目
     @PostMapping("/getBankQuestionByBankId/{bankId}")
     public Result getBankQuestionByBankId(@PathVariable(value = "bankId") Integer bankId) {
+
         List<Question> res = new ArrayList<Question>();
         List<Integer> ids = new ArrayList<Integer>();
-        List<BankQuestion> bankQuestions = studentService.findAllBankQuestions(bankId);
+        List<BankQuestion> bankQuestions = studentService.findAllBankQuestions();
         for (BankQuestion bankQuestion : bankQuestions) {
             if (bankQuestion.getBankId().equals(bankId)) {
                 ids.add(bankQuestion.getQuestionId());
@@ -105,8 +107,8 @@ public class StudentController {
     }
 
     // 通过题目id 找到 相关题目
-    @PostMapping("/findQuestionById")
-    public Result findQuestionById(@RequestParam(value = "questionId") Integer questionId) {
+    @PostMapping("/findQuestionById/{questionId}")
+    public Result findQuestionById(@PathVariable(value = "questionId") Integer questionId) {
         Question   question = studentService.findQUestionById(questionId);
         return Result.success(question);
     }
@@ -124,4 +126,20 @@ public class StudentController {
         studentService.addStudentBanks(studentId,bankId);
         return Result.success();
     }
+
+    // 通过题库名称进行模糊查询
+    @PostMapping("/fuzzyQueryByBankName/{bankName}")
+    public Result fuzzyQueryByBankName(@PathVariable(value = "bankName") String bankName) {
+        List<Bank> banks = studentService.fuzzyQueryByBankName(bankName);
+        return Result.success(banks);
+    }
+
+    // 通过Id 查找题库
+    @PostMapping("/findBankById/{bankId}")
+    public Result findBankById(@PathVariable(value = "bankId") Integer bankId) {
+        Bank bank = studentService.findBankById(bankId);
+        return Result.success(bank);
+    }
+
+
 }

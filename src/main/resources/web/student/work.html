@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库详情</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        #app {
+            width: 80%;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        h3, h4 {
+            color: #333;
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover td {
+            background-color: #f1f1f1;
+        }
+
+        /* 按钮样式 */
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        /* 加载中提示 */
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <h2>题库详情</h2>
+
+    <div v-if="bank">
+        <!-- 题库详情表格 -->
+        <h3>题库信息</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>字段</th>
+                <th>值</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><strong>题库ID</strong></td>
+                <td>{{ bank.id }}</td>
+            </tr>
+            <tr>
+                <td><strong>题库名称</strong></td>
+                <td>{{ bank.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>题库描述</strong></td>
+                <td>{{ bank.description }}</td>
+            </tr>
+            <tr>
+                <td><strong>创建者ID</strong></td>
+                <td>{{ bank.createdBy }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 题库中的题目表格 -->
+        <h4>题库中的题目</h4>
+        <table>
+            <thead>
+            <tr>
+                <th>题目ID</th>
+                <th>题目内容</th>
+                <th>选项</th>
+                <th>创建者ID</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="question in questions" :key="question.id">
+                <td>{{ question.id }}</td>
+                <td>{{ question.statement }}</td>
+                <td>{{ question.options }}</td>
+                <td>{{ question.createdBy }}</td>
+                <td>
+                    <button @click="goToQuestionDetail(question.id)">进入</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div v-else class="loading">
+        <p>加载中...</p>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                bank: null,  // 存储题库信息
+                questions: [],  // 存储题库中的所有题目
+            };
+        },
+        created() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bankId = urlParams.get('bankId');  // 获取URL中的bankId参数
+
+            if (bankId) {
+                this.getBankDetails(bankId);  // 获取题库详情
+                this.getQuestions(bankId);  // 获取题库中的所有题目
+            } else {
+                console.error('没有提供题库ID');
+            }
+        },
+        methods: {
+            // 获取题库详情
+            getBankDetails(bankId) {
+                axios.post(`http://localhost:8080/api/students/findBankById/${bankId}`)
+                    .then(response => {
+                        this.bank = response.data.data;  // 保存题库详情
+                    })
+                    .catch(error => {
+                        console.error('获取题库信息失败', error);
+                    });
+            },
+            // 获取题库中的所有题目
+            getQuestions(bankId) {
+                axios.post(`http://localhost:8080/api/students/getBankQuestionByBankId/${bankId}`)
+                    .then(response => {
+                        this.questions = response.data.data;  // 保存题库中的所有题目
+                    })
+                    .catch(error => {
+                        console.error('获取题目失败', error);
+                    });
+            },
+            // 进入题目详情页面
+            goToQuestionDetail(questionId) {
+                // 跳转到 work_question.html 页面，并传递 questionId
+                window.location.href = `work_question.html?questionId=${questionId}`;
+            }
+        }
+    });
+
+    app.mount('#app');
+</script>
+
+</body>
+</html>
+v
