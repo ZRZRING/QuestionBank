@@ -29,9 +29,6 @@ public class QuestionController {
     @GetMapping("/{id}")
     public ResponseEntity<Question> getQuestionById(@PathVariable int id) {
         Question question = questionService.findQuestionById(id);
-        if (question == null) {
-            return ResponseEntity.notFound().build();  // 返回404 Not Found
-        }
         return ResponseEntity.ok(question);  // 返回200 OK
     }
 

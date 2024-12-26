@@ -23,7 +23,7 @@ public class QuestionDao {
     }
 
     public Question findById(Integer id) {
-        String sql = "SELECT * FROM admin WHERE id = ?";
+        String sql = "SELECT * FROM question WHERE id = ?";
         RowMapper<Question> rowMapper = new BeanPropertyRowMapper<>(Question.class);
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
     }

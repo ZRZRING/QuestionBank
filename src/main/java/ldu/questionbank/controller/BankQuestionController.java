@@ -51,10 +51,6 @@ public class BankQuestionController {
                 .findFirst()
                 .orElse(null);
 
-        if (existingBankQuestion == null) {
-            return ResponseEntity.notFound().build();  // 返回404 Not Found
-        }
-
         bankQuestionService.deleteBankQuestion(id);
         return ResponseEntity.noContent().build();  // 返回204 No Content
     }

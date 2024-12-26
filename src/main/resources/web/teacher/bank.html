@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库详情</title>
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- 引入 Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 添加一些基本样式 */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .bank-info {
+            margin-bottom: 20px;
+        }
+        .question-list {
+            margin-bottom: 20px;
+        }
+        .question {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="container">
+        <div class="button">
+            <button @click="addQuestion">新增题目</button>
+        </div>
+        <div class="bank-info">
+            <h2>{{ bank.name }}</h2>
+            <p><strong>ID：</strong>{{ bank.id }}</p>
+            <p><strong>描述：</strong>{{ bank.description }}</p>
+            <p><strong>密码：</strong>{{ bank.password }}</p>
+            <p><strong>创建者：</strong>{{ bank.createdBy }}</p>
+        </div>
+        <div class="question-list">
+            <h3>详细题目列表</h3>
+            <div v-for="question in detailedQuestions" :key="question.id" class="question">
+                <p><strong>陈述：</strong>{{ question.statement }}</p>
+                <p><strong>选项：</strong>{{ question.options }}</p>
+                <p><strong>答案：</strong>{{ question.answers }}</p>
+                <button @click="removeQuestion(question.id)">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                bank: {id: '', name: '', password:'', description: '', createdBy: '' },
+                questions: [],
+                detailedQuestions: [],
+                isLoading: true,
+                id: this.getIdFromUrl()
+            };
+        },
+        methods: {
+            getIdFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('id');
+            },
+            async fetchBank() {
+                const response = await axios.get(`http://localhost:8080/api/banks/${this.id}`);
+                this.bank = response.data;
+            },
+            async fetchQuestions() {
+                const response = await axios.get(`http://localhost:8080/api/qBanks/bank/${this.getIdFromUrl()}`);
+                this.questions = response.data;
+                    // 清空已有的详细题目数据
+                this.detailedQuestions = [];
+
+                // 遍历题目ID，获取每个题目的详细信息
+                for (const questionId of this.questions.map(question => question.questionId)) {
+                    const questionResponse = await axios.get(`http://localhost:8080/api/questions/${questionId}`);
+                    // alert(`http://localhost:8080/api/questions/${questionId}`)
+                    this.detailedQuestions.push(questionResponse.data);
+                }
+                console.log(this.detailedQuestions);
+            },
+            async removeQuestion(id) {
+                // 遍历 this.questions 查找questionId == id对应的questions中的id
+                // 发送删除请求到服务器
+                // await axios.delete(`http://localhost:8080/api/qBanks/delete/${this.questions[index].id}`);
+                // // 从列表中删除题目
+                // this.detailedQuestions.splice(index, 1);
+            },
+            async addQuestion() {
+                alert(this.questions[this.detailedQuestions.length - 1].id)
+            }
+        },
+        created() {
+            this.fetchBank();
+            this.fetchQuestions();
+        }
+    });
+
+    app.mount('#app');
+</script>
+</body>
+</html>

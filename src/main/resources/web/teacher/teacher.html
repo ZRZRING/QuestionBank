@@ -2,9 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教师界面</title>
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3"></script>
+    <!-- 引入 Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 样式 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .bank-list {
+            border-top: 2px solid #ddd;
+            margin-top: 20px;
+        }
+
+        .bank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .bank-item button {
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
+<!-- Vue 挂载点 -->
+<div id="app">
+    <!-- 顶部功能区 -->
+    <div class="header">
+        <h1>当前题库</h1>
+        <div>
+            <button @click="navigateTo('newbank.html')">新建题库</button>
+            <button @click="navigateTo('newProblem.html')">导入题目</button>
+        </div>
+    </div>
 
+    <!-- 题库列表 -->
+    <div class="bank-list">
+        <div
+                v-for="bank in banks"
+                :key="bank.id"
+                class="bank-item"
+        >
+            <span>{{ bank.name }} | {{ bank.description }}</span>
+            <div>
+                <button @click="viewBank(bank.id)">查看</button>
+                <button @click="deleteBank(bank.id)">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                banks: [], // 存储题库数据
+            };
+        },
+        methods: {
+            /**
+             * 从后端获取题库列表
+             */
+            async fetchBanks() {
+                try {
+                    const response = await axios.get("http://localhost:8080/api/banks"); // 调用后端API获取数据
+                    this.banks = response.data; // 将返回的数据绑定到 banks
+                } catch (error) {
+                    console.error("Failed to fetch bank data:", error);
+                    alert("获取题库失败！");
+                }
+            },
+
+            /**
+             * 页面跳转
+             * @param {string} path - 目标路径
+             */
+            navigateTo(path) {
+                window.location.href = path; // 页面跳转
+            },
+
+            /**
+             * 查看题库详情
+             * @param {number} id - 题库ID
+             */
+            viewBank(id) {
+                // 构造一个带有查询参数的URL
+                window.location.href = `bank.html?id=${id}`; // 跳转到题库详情页
+            },
+
+            /**
+             * 删除题库
+             * @param {number} id - 题库ID
+             */
+            async deleteBank(id) {
+                if (confirm("确定要删除该题库吗？")) {
+                    try {
+                        await axios.delete(`http://localhost:8080/api/banks/delete/${id}`); // 调用后端API删除题库
+                        alert("题库删除成功！");
+                        this.fetchBanks();
+                    } catch (error) {
+                        console.error("Failed to delete bank:", error);
+                        alert("删除题库失败！");
+                    }
+                }
+            },
+        },
+        mounted() {
+            this.fetchBanks();
+        },
+    });
+
+    app.mount('#app'); // 将 Vue 应用挂载到 HTML 中的 #app 节点
+</script>
 </body>
 </html>

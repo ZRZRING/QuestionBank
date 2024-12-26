@@ -29,7 +29,7 @@ public class BankDao {
     }
 
     public void save(Bank bank) {
-        String sql = "insert into bank(name,password,description,createdBy) values(?,?,?,?)";
+        String sql = "insert into bank(name,password,description,created_by) values(?,?,?,?)";
         jdbcTemplate.update(sql, bank.getName(), bank.getPassword(), bank.getDescription(), bank.getCreatedBy());
     }
 
