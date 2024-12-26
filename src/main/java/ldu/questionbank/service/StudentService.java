@@ -1,8 +1,11 @@
 package ldu.questionbank.service;
 
 import ldu.questionbank.dao.StudentDao;
+import ldu.questionbank.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 功能: 定义 service 与 dao 层的交互
@@ -11,18 +14,46 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StudentService {
+
     @Autowired
-    private StudentDao studentDao = new StudentDao();
+    private StudentDao studentDao;
 
-
-    /**
-     * 根据id 返回题库密码
-     * @param id
-     * @return
-     */
     public String getPasswordFromBankById(Integer id){
         return studentDao.getPasswordFromBankById(id);
     }
 
+    public List<Bank> findAllBank(){
+        return studentDao.findAllBank();
+    }
 
+
+    public Student getMessageFromStudentsById(Integer id) {
+        return studentDao.getMessageFromStudentsById(id);
+    }
+
+    // 查询student_bank 的所有信息
+    public List<StudentBank> findAllStudentBank(){
+        return studentDao.findAllStudentBank();
+    }
+
+    public List<BankQuestion> findAllBankQuestions(Integer bankId) {
+        return studentDao.findAllBankQuestions(bankId);
+    }
+
+    public List<Question> findAllQuestions() {
+        return studentDao.findAllQuestions();
+    }
+
+    // 通过id 删除 studentBank 中的记录
+    public void deletestudentBankById(Integer id){
+        studentDao.deletestudentBankById(id);
+    }
+
+    public Question findQUestionById(Integer questionId) {
+        return studentDao.findQuestionById(questionId);
+    }
+
+    public void addStudentBanks(Integer studentId, Integer bankId) {
+        studentDao.addStudentBank(studentId,bankId);
+    }
 }

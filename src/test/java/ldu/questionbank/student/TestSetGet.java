@@ -1,11 +1,9 @@
-package ldu.questionbank.studentbytest;
+package ldu.questionbank.student;
 
 import ldu.questionbank.entity.Admin;
 
 public class TestSetGet {
     public static void main(String[] args) {
-        Admin admin = new Admin();
-        admin.setId(2);
-        System.out.println(admin.getId());
+
     }
 }

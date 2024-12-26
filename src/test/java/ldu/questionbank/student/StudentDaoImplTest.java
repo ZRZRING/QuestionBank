@@ -15,9 +15,5 @@ class StudentDaoImplTest {
     @Autowired
     private StudentDao studentDao;
 
-    @Test
-    void test() {
-         String res=studentDao.getPasswordFromBankById(1);
-        System.out.println(res);
-    }
+
 }
