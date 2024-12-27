@@ -1,4 +1,4 @@
-package ldu.questionbank.entity;
+package ldu.questionbank.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,10 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Bank {
+public class LoginRequest {
     private Integer id;
-    private String name;
+    private String username;
     private String password;
-    private String description;
-    private Integer createdBy;
+    private String role;
 }

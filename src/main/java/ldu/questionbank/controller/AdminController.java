@@ -16,7 +16,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @GetMapping("/getAllAdmins")
+    @GetMapping
     public List<Admin> getAllAdmins() {
         return adminService.getAllAdmins();
     }

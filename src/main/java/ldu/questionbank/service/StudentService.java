@@ -26,12 +26,10 @@ public class StudentService {
         return studentDao.findAllBank();
     }
 
-
     public Student getMessageFromStudentsById(Integer id) {
         return studentDao.getMessageFromStudentsById(id);
     }
 
-    // 查询student_bank 的所有信息
     public List<StudentBank> findAllStudentBank(){
         return studentDao.findAllStudentBank();
     }
