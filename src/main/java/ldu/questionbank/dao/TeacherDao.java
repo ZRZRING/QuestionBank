@@ -31,12 +31,19 @@ public class TeacherDao {
     public Teacher getTeacherByUsername(String username) {
         String sql = "SELECT * FROM teacher WHERE username = ?";
         RowMapper<Teacher> rowMapper = new BeanPropertyRowMapper<>(Teacher.class);
-        return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    public void addTeacher(Teacher teacher) {
+    public Teacher addTeacher(Teacher teacher) {
         String sql = "INSERT INTO teacher (username, password) VALUES (?, ?)";
         jdbcTemplate.update(sql, teacher.getUsername(), teacher.getPassword());
+        sql = "SELECT * FROM teacher WHERE username = ?";
+        RowMapper<Teacher> rowMapper = new BeanPropertyRowMapper<>(Teacher.class);
+        return jdbcTemplate.queryForObject(sql, new Object[]{teacher.getUsername()}, rowMapper);
     }
 
     public void updateTeacher(Teacher teacher) {

@@ -1,6 +1,7 @@
 package ldu.questionbank.dao;
 
 import ldu.questionbank.entity.Admin;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,7 +32,11 @@ public class AdminDao {
     public Admin getAdminByUsername(String username) {
         String sql = "SELECT * FROM admin WHERE username = ?";
         RowMapper<Admin> rowMapper = new BeanPropertyRowMapper<>(Admin.class);
-        return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void addAdmin(Admin admin) {

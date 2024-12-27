@@ -28,4 +28,16 @@ public class LoginController {
             return Result.error("用户名或密码错误");
         }
     }
+
+    @PostMapping("/register")
+    public Result register(@RequestBody LoginRequest loginRequest) {
+        Integer result = loginService.register(loginRequest);
+        System.out.println(result);
+        System.out.println(loginRequest);
+        if (!result.equals(0)) {
+            return Result.success(result);
+        } else {
+            return Result.error("用户名重复或系统错误");
+        }
+    }
 }

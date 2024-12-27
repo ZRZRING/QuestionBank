@@ -1,10 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>学生管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+<div id="app" class="container mt-12">
+    <div v-if="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+    <div class="card m-4" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header">
+            <h5>学生列表</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li v-for="teacher in teachers" :key="teacher.id" class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ teacher.username }}</span>
+                    <div>
+                        <button @click="deleteTeacher(teacher.id)" class="btn btn-sm btn-danger">删除</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                teachers: [],
+                editMode: false,
+                errorMessage: "",
+                apiUrl: "http://localhost:8080/api/teachers",
+                form: { id: null, username: "" },
+            };
+        },
+        methods: {
+            async apiRequest(method, url, data = null) {
+                try {
+                    const response = await axios({ method, url, data });
+                    this.errorMessage = "";
+                    return response.data;
+                } catch (error) {
+                    this.errorMessage = error.response?.data?.message || "请求失败: 未知错误";
+                    console.error(error);
+                    throw error;
+                }
+            },
+            handleRequest(method, url, data = null) {
+                this.apiRequest(method, url, data)
+                    .then((data) => {
+                        if (method === "get") {
+                            this.teachers = data;
+                        } else {
+                            this.fetchTeachers();
+                        }
+                    });
+            },
+            fetchTeachers() {
+                const url = this.apiUrl;
+                this.handleRequest("get", url);
+            },
+            deleteTeacher(id) {
+                const url = `${this.apiUrl}/delete/${id}`;
+                this.handleRequest("delete", url);
+            },
+        },
+        mounted() {
+            this.fetchTeachers();
+        },
+    });
+
+    app.mount('#app');
+</script>
 </body>
 </html>

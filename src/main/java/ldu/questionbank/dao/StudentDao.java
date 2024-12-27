@@ -23,25 +23,44 @@ public class StudentDao {
     @Autowired
     private JdbcTemplate jdbcTemplate ;
 
-    /**
-     * 根据id 返回题库密码
-     * @param id
-     * @return
-     */
+    public List<Student> findAllStudents() {
+        String sql = "select * from student";
+        RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public Student addStudent(Student student) {
+        String sql = "insert into student(username, password) values(?, ?)";
+        jdbcTemplate.update(sql, student.getUsername(), student.getPassword());
+        sql = "select * from student where username = ?";
+        RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
+        return jdbcTemplate.queryForObject(sql, rowMapper, student.getUsername());
+    }
+
+    public void deleteStudentById(int id) {
+        String sql = "delete from student where id = ?";
+        jdbcTemplate.update(sql, id);
+    }
+
+    public Student getStudentByUsername(String username) {
+        String sql = "select * from student where username = ?";
+        RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
+        try {
+            return jdbcTemplate.queryForObject(sql, rowMapper, username);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public String getPasswordFromBankById(Integer id) {
         String sql = "select password from bank where id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, String.class);
     }
 
-    /**
-     * 查询所有题库信息
-     * @return
-     */
     public List<Bank> findAllBank() {
         String sql="select * from bank";
         RowMapper<Bank> rowMapper = new BeanPropertyRowMapper<Bank>(Bank.class);
         return jdbcTemplate.query(sql, rowMapper);
-
     }
 
     public Student getMessageFromStudentsById(Integer id) {

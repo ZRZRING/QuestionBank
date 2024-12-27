@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -13,47 +13,19 @@
     <div v-if="errorMessage" class="alert alert-danger">
         {{ errorMessage }}
     </div>
-
-    <div class="card">
+    <div class="card m-4" style="max-width: 600px; margin: 0 auto;">
         <div class="card-header">
             <h5>学生列表</h5>
         </div>
         <div class="card-body">
             <ul class="list-group">
                 <li v-for="student in students" :key="student.id" class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ student.name }} - {{ student.deptName }} - {{ student.totalCredits }}</span>
+                    <span>{{ student.username }}</span>
                     <div>
-                        <button @click="editStudent(student)" class="btn btn-sm btn-warning me-2">编辑</button>
                         <button @click="deleteStudent(student.id)" class="btn btn-sm btn-danger">删除</button>
                     </div>
                 </li>
             </ul>
-        </div>
-    </div>
-
-    <div class="card mb-12">
-        <div class="card-header">
-            <h5>{{ editMode ? '编辑学生' : '添加学生' }}</h5>
-        </div>
-        <div class="card-body">
-            <form @submit.prevent="saveStudent">
-                <div class="mb-3">
-                    <label for="name" class="form-label">学生姓名</label>
-                    <input v-model="form.name" id="name" type="text" class="form-control" placeholder="学生姓名" required>
-                </div>
-                <div class="mb-3">
-                    <label for="deptName" class="form-label">院系名称</label>
-                    <input v-model="form.deptName" id="deptName" type="text" class="form-control" placeholder="院系名称" required>
-                </div>
-                <div class="mb-3">
-                    <label for="totalCredits" class="form-label">学分</label>
-                    <input v-model="form.totalCredits" id="totalCredits" type="number" class="form-control" placeholder="学分" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    {{ editMode ? '更新学生' : '添加学生' }}
-                </button>
-                <button type="button" @click="resetForm" class="btn btn-secondary ms-2">重置</button>
-            </form>
         </div>
     </div>
 </div>
@@ -66,7 +38,7 @@
                 editMode: false,
                 errorMessage: "",
                 apiUrl: "http://localhost:8080/api/students",
-                form: { id: null, name: "", deptName: "", totalCredits: null },
+                form: { id: null, username: "" },
             };
         },
         methods: {
@@ -88,7 +60,6 @@
                             this.students = data;
                         } else {
                             this.fetchStudents();
-                            this.resetForm();
                         }
                     });
             },
@@ -96,33 +67,9 @@
                 const url = this.apiUrl;
                 this.handleRequest("get", url);
             },
-            createStudent() {
-                const url = this.apiUrl;
-                this.handleRequest("post", url, this.form);
-            },
-            updateStudent() {
-                const url = `${this.apiUrl}/${this.form.id}`;
-                this.handleRequest("put", url, this.form);
-            },
             deleteStudent(id) {
-                const url = `${this.apiUrl}/${id}`;
+                const url = `${this.apiUrl}/delete/${id}`;
                 this.handleRequest("delete", url);
-            },
-            saveStudent() {
-                if (this.editMode) {
-                    this.updateStudent();
-                } else {
-                    this.createStudent();
-                }
-            },
-            editStudent(student) {
-                this.form = { ...student };
-                this.editMode = true;
-            },
-            resetForm() {
-                this.editMode = false;
-                this.errorMessage = "";
-                this.form = { id: null, name: "", deptName: "", totalCredits: null };
             },
         },
         mounted() {

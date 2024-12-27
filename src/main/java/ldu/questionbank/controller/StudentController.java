@@ -27,8 +27,25 @@ public class StudentController {
         return Result.success(banks);
     }
 
+    @GetMapping()
+    public List<Student> findAllStudents() {
+        List<Student> students = studentService.findAllStudents();
+        return students;
+    }
 
-   // 通过Id 获取 bank信息
+    @PostMapping()
+    public Result addStudent(@RequestBody Student student) {
+        studentService.addStudent(student);
+        return Result.success();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public Result deleteStudent(@PathVariable Integer id) {
+        studentService.deleteStudentById(id);
+        return Result.success();
+    }
+
+    // 通过Id 获取 bank信息
     @GetMapping("/getPasswordFromBanksById/{id}")
     public Result getPasswordFromBanksById(@PathVariable(value = "id") Integer id) {
         String password = studentService.getPasswordFromBankById(id);

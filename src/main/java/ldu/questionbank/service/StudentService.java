@@ -18,6 +18,18 @@ public class StudentService {
     @Autowired
     private StudentDao studentDao;
 
+    public List<Student> findAllStudents() {
+        return studentDao.findAllStudents();
+    }
+
+    public void addStudent(Student student) {
+        studentDao.addStudent(student);
+    }
+
+    public void deleteStudentById(Integer id) {
+        studentDao.deleteStudentById(id);
+    }
+
     public String getPasswordFromBankById(Integer id){
         return studentDao.getPasswordFromBankById(id);
     }
@@ -42,7 +54,6 @@ public class StudentService {
         return studentDao.findAllQuestions();
     }
 
-    // 通过id 删除 studentBank 中的记录
     public void deletestudentBankById(Integer id){
         studentDao.deletestudentBankById(id);
     }
@@ -62,6 +73,4 @@ public class StudentService {
     public Bank findBankById(Integer bankId) {
         return studentDao.findBankById(bankId);
     }
-
-
 }
