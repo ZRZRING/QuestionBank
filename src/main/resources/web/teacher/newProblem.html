@@ -2,35 +2,133 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>录入题目</title>
     <!-- 引入Vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
 
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .question-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .option-item {
+            margin-left: 20px;
+        }
+
+        .delete-button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #f50057;
+        }
+
+        #previewArea {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+    </style>
 </head>
 <body>
-<div id="app">
+<div id="app" class="container">
     <h1>录入题目</h1>
     <form @submit.prevent="handleSubmit">
-        <label for="question">录入题目内容：</label><br>
-        <textarea v-model="question" id="question" rows="4" cols="50" placeholder="请输入题目内容"></textarea><br><br>
-        <button type="submit">提交</button>
-        <button type="button" @click="previewQuestion">预览</button>
+        <div class="form-group">
+            <label for="question">录入题目内容：</label>
+            <textarea v-model="question" id="question" rows="6" placeholder="请输入题目内容（每个问题之间用空行分隔）"></textarea>
+        </div>
+        <div class="button-group">
+            <button type="submit">提交</button>
+            <button type="button" @click="previewQuestion">预览</button>
+        </div>
     </form>
 
     <h2>预览题目内容</h2>
-    <div id="previewArea" style="border: 1px solid #000; padding: 10px; margin-top: 20px;">
-        <!-- 遍历 questionList 并展示每个问题 -->
+    <div id="previewArea">
         <div v-for="(questionItem, index) in questionList" :key="index" class="question-item">
-            <span>{{ questionItem.statement }}</span>
+            <div><strong>题目：</strong>{{ questionItem.statement }}</div>
             <div>
-                <!-- 展示选项列表 -->
+                <strong>选项：</strong>
                 <div v-for="(option, optIndex) in questionItem.options" :key="optIndex" class="option-item">
                     {{ option }}
                 </div>
-                <div>{{ questionItem.answers }}</div>
-                <button @click="deleteQuestion(index)">删除</button>
             </div>
+            <div><strong>答案：</strong>{{ questionItem.answers }}</div>
+            <button @click="deleteQuestion(index)" class="delete-button">删除</button>
         </div>
     </div>
 </div>
@@ -46,22 +144,21 @@
         methods: {
             handleSubmit() {
                 console.log('提交的题目内容：', this.questionList);
-            //     遍历questionList，枚举其中的options数组，将其转换为一个字符串，每个元素之间使用<option>分隔
                 this.questionList.forEach((question, index) => {
                     let optionsHtml = question.options.map(option => `${option}`).join('<option>');
-                    // console.log(`题目${index + 1}的选项HTML: ${optionsHtml}`);
-                    let newquestion = {...question,options:optionsHtml};
+                    let newquestion = {...question, options: optionsHtml};
                     console.log(newquestion);
                     axios.post('http://localhost:8080/api/questions', newquestion);
                 });
+                alert('题目上传成功！')
             },
             previewQuestion() {
-                this.questionList = []; // 初始化questionList为一个空数组
+                this.questionList = [];
                 const questionsRaw = this.question.split('\n\n');
                 questionsRaw.forEach((q, index) => {
-                    const lines = q.split('\n').filter(line => line !== ''); // 去除空行
-                    const statement = lines[0]; // 第一行作为问题陈述
-                    const options = lines.slice(1, 5).map((option, optIndex) => `${option}`); // 之后四行作为选项
+                    const lines = q.split('\n').filter(line => line !== '');
+                    const statement = lines[0];
+                    const options = lines.slice(1, 5).map(option => `${option}`);
                     const answers = lines[5];
                     this.questionList.push({
                         statement: statement,

@@ -28,6 +28,12 @@ public class AdminDao {
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
     }
 
+    public Admin getAdminByUsername(String username) {
+        String sql = "SELECT * FROM admin WHERE username = ?";
+        RowMapper<Admin> rowMapper = new BeanPropertyRowMapper<>(Admin.class);
+        return jdbcTemplate.queryForObject(sql, new Object[]{username}, rowMapper);
+    }
+
     public void addAdmin(Admin admin) {
         String sql = "INSERT INTO admin (username, password) VALUES (?, ?)";
         jdbcTemplate.update(sql, admin.getUsername(), admin.getPassword());

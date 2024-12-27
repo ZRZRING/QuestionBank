@@ -44,7 +44,6 @@ public class StudentDao {
 
     }
 
-
     public Student getMessageFromStudentsById(Integer id) {
         String sql = "select * from student where id = ?";
         RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
@@ -91,12 +90,9 @@ public class StudentDao {
         return jdbcTemplate.query(sql, new Object[]{"%" + bankName + "%"}, rowMapper);
     }
 
-
     public Bank findBankById(Integer bankId) {
        String sql = "select * from bank where id = ?";
        RowMapper<Bank> rowMapper = BeanPropertyRowMapper.newInstance(Bank.class);
        return jdbcTemplate.queryForObject(sql, rowMapper, bankId);
     }
-
-
 }

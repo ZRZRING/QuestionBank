@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Result {
-
     public static final String CODE_SUCCESS = "200";
     public static final String CODE_AUTH_ERROR = "401";
     public static final String CODE_SYS_ERROR = "500";

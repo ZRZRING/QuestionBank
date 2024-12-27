@@ -9,56 +9,170 @@
     <!-- 引入 Axios CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* 样式 */
+        /* 页面基础样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
 
         .header button {
             padding: 10px 15px;
-            margin: 5px;
+            background-color: #fff;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .header button:hover {
+            background-color: #f1f1f1;
         }
 
         .bank-list, .question-list {
-            border-top: 2px solid #ddd;
             margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
         }
 
         .bank-item, .question-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .bank-item:hover, .question-item:hover {
+            background-color: #e8f5e9;
         }
 
         .bank-item button, .question-item button {
             margin-left: 5px;
+            padding: 8px 12px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .bank-item button:hover, .question-item button:hover {
+            background-color: #f50057;
         }
 
         .pagination {
-            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
         }
 
         .pagination button {
-            padding: 5px 10px;
-            margin-right: 5px;
+            padding: 8px 15px;
+            margin: 0 5px;
             cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
 
         .pagination button:disabled {
+            background-color: #b0bec5;
             cursor: not-allowed;
-            opacity: 0.5;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 75%;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .search-bar button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-bar button:hover {
+            background-color: #45a049;
+        }
+
+        /* 响应式设计 */
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header button {
+                margin-top: 10px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+            }
+
+            .search-bar input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .pagination {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
 <!-- Vue 挂载点 -->
-<div id="app">
+<div id="app" class="container">
     <!-- 顶部功能区 -->
     <div class="header">
         <h1>当前题库</h1>
@@ -95,6 +209,7 @@
         </div>
         <div v-for="question in paginatedQuestions" :key="question.id" class="question-item">
             <span>{{ question.statement }}</span>
+            <button @click="deleteQuestion(question.id)">删除</button>
         </div>
         <div class="pagination">
             <button @click="changePage(1)" :disabled="currentPage === 1">首页</button>
@@ -110,12 +225,12 @@
     const app = Vue.createApp({
         data() {
             return {
-                banks: [], // 存储题库数据
-                questions: [], // 存储题目数据
-                viewMode: 'banks', // 'banks' 或 'questions'，控制视图模式
-                currentPage: 1, // 当前的页码
-                recordsPerPage: 10, // 每页显示的记录数
-                totalRecords: 0, // 总记录数
+                banks: [],
+                questions: [],
+                viewMode: 'banks',
+                currentPage: 1,
+                recordsPerPage: 10,
+                totalRecords: 0,
                 searchQuery: ''
             };
         },
@@ -162,7 +277,7 @@
                     let response = await axios.get(`http://localhost:8080/api/questions/statement/${this.searchQuery}`);
                     this.questions = response.data;
                     this.totalRecords = this.questions.length;
-                    this.currentPage = 1; // 重置当前页码为1
+                    this.currentPage = 1;
                 }
             },
             navigateTo(path) {
@@ -183,7 +298,20 @@
                     }
                 }
             },
+            async deleteQuestion(id) {
+                if (confirm("确定要删除该题目吗？")) {
+                    try {
+                        await axios.delete(`http://localhost:8080/api/questions/delete/${id}`);
+                        alert("题目删除成功！");
+                        this.fetchQuestions();
+                    } catch (error) {
+                        console.error("Failed to delete question:", error);
+                        alert("删除题目失败！");
+                    }
+                }
+            },
             toggleView() {
+                this.changePage(1);
                 this.viewMode = this.viewMode === 'banks' ? 'questions' : 'banks';
                 if (this.viewMode === 'questions') {
                     this.fetchQuestions();
@@ -200,7 +328,7 @@
         },
     });
 
-    app.mount('#app'); // 将 Vue 应用挂载到 HTML 中的 #app 节点
+    app.mount('#app');
 </script>
 </body>
 </html>
