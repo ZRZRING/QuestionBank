@@ -27,10 +27,14 @@ public class StudentController {
         return Result.success(banks);
     }
 
+    @GetMapping("/findStudentsLike")
+    public List<Student> findStudentsLike(@RequestParam("username") String username) {
+        return studentService.findStudentsLike(username);
+    }
+
     @GetMapping()
     public List<Student> findAllStudents() {
-        List<Student> students = studentService.findAllStudents();
-        return students;
+        return studentService.findAllStudents();
     }
 
     @PostMapping()

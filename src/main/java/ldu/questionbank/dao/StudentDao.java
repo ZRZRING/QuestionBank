@@ -29,6 +29,12 @@ public class StudentDao {
         return jdbcTemplate.query(sql, rowMapper);
     }
 
+    public List<Student> findStudentsLike(String username) {
+        String sql = "select * from student where username like ?";
+        RowMapper<Student> rowMapper = BeanPropertyRowMapper.newInstance(Student.class);
+        return jdbcTemplate.query(sql, rowMapper, "%" + username + "%");
+    }
+
     public Student addStudent(Student student) {
         String sql = "insert into student(username, password) values(?, ?)";
         jdbcTemplate.update(sql, student.getUsername(), student.getPassword());

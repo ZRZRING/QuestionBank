@@ -30,6 +30,10 @@ public class StudentService {
         studentDao.deleteStudentById(id);
     }
 
+    public List<Student> findStudentsLike(String username) {
+        return studentDao.findStudentsLike(username);
+    }
+
     public String getPasswordFromBankById(Integer id){
         return studentDao.getPasswordFromBankById(id);
     }

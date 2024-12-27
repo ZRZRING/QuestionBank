@@ -21,6 +21,11 @@ public class TeacherController {
         return teacherService.getAllTeachers();
     }
 
+    @GetMapping("/findTeachersLike")
+    public List<Teacher> findTeachersLike(@RequestParam("username") String username) {
+        return teacherService.findTeachersLike(username);
+    }
+
     @GetMapping("/getTeacherById/{id}")
     public Teacher getTeacherById(@PathVariable(value="id") Integer id) {
         return teacherService.getTeacherById(id);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>学生管理</title>
+    <title>教师管理</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -15,11 +15,17 @@
     </div>
     <div class="card m-4" style="max-width: 600px; margin: 0 auto;">
         <div class="card-header">
-            <h5>学生列表</h5>
+            <h5>教师列表</h5>
         </div>
         <div class="card-body">
+            <div class="mb-3">
+                <input type="text" class="form-control" v-model="searchQuery" placeholder="请输入用户名进行搜索">
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-primary" @click="searchTeachers">搜索</button>
+            </div>
             <ul class="list-group">
-                <li v-for="teacher in teachers" :key="teacher.id" class="list-group-item d-flex justify-content-between align-items-center">
+                <li v-for="teacher in currentTeachers" :key="teacher.id" class="list-group-item d-flex justify-content-between align-items-center">
                     <span>{{ teacher.username }}</span>
                     <div>
                         <button @click="deleteTeacher(teacher.id)" class="btn btn-sm btn-danger">删除</button>
@@ -27,6 +33,16 @@
                 </li>
             </ul>
         </div>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{'disabled': currentPage === 1}">
+                    <button class="page-link" @click="changePage(currentPage - 1)">上一页</button>
+                </li>
+                <li class="page-item" :class="{'disabled': currentPage === totalPages}">
+                    <button class="page-link" @click="changePage(currentPage + 1)">下一页</button>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 
@@ -34,12 +50,19 @@
     const app = Vue.createApp({
         data() {
             return {
-                teachers: [],
-                editMode: false,
+                teachers: [], // 存储所有教师数据
+                currentTeachers: [], // 当前页的数据
+                currentPage: 1, // 当前页码
+                pageSize: 5, // 每页显示的教师数量
                 errorMessage: "",
                 apiUrl: "http://localhost:8080/api/teachers",
-                form: { id: null, username: "" },
+                searchQuery: "",
             };
+        },
+        computed: {
+            totalPages() {
+                return Array.isArray(this.teachers) ? Math.ceil(this.teachers.length / this.pageSize) : 0; // 计算总页数
+            }
         },
         methods: {
             async apiRequest(method, url, data = null) {
@@ -57,19 +80,39 @@
                 this.apiRequest(method, url, data)
                     .then((data) => {
                         if (method === "get") {
-                            this.teachers = data;
+                            this.teachers = Array.isArray(data) ? data : [];
+                            this.updateCurrentPageData();
                         } else {
                             this.fetchTeachers();
                         }
                     });
             },
-            fetchTeachers() {
-                const url = this.apiUrl;
+            fetchTeachers(query = "") {
+                const url = query ? `${this.apiUrl}/findTeachersLike?username=${query}` : this.apiUrl;
+                console.log(url);
                 this.handleRequest("get", url);
             },
             deleteTeacher(id) {
                 const url = `${this.apiUrl}/delete/${id}`;
                 this.handleRequest("delete", url);
+            },
+            changePage(page) {
+                if (page < 1 || page > this.totalPages) return; // 不合法的页码
+                this.currentPage = page; // 更新当前页码
+                this.updateCurrentPageData();
+            },
+            updateCurrentPageData() {
+                if (Array.isArray(this.teachers)) {
+                    const start = (this.currentPage - 1) * this.pageSize; // 计算起始位置
+                    const end = start + this.pageSize; // 计算结束位置
+                    this.currentTeachers = this.teachers.slice(start, end); // 更新当前页的数据
+                } else {
+                    this.currentTeachers = [];
+                }
+            },
+            searchTeachers() {
+                this.currentPage = 1;
+                this.fetchTeachers(this.searchQuery);
             },
         },
         mounted() {

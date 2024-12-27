@@ -18,6 +18,10 @@ public class TeacherService {
         return teacherDao.getAllTeachers();
     }
 
+    public List<Teacher> findTeachersLike(String username) {
+        return teacherDao.findTeachersLike(username);
+    }
+
     public Teacher getTeacherById(Integer id) {
         return teacherDao.getTeacherById(id);
     }

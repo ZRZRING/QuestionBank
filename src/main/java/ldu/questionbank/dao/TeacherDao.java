@@ -22,6 +22,12 @@ public class TeacherDao {
         return jdbcTemplate.query(sql, rowMapper);
     }
 
+    public List<Teacher> findTeachersLike(String username) {
+        String sql = "SELECT * FROM teacher WHERE username like ?";
+        RowMapper<Teacher> rowMapper = new BeanPropertyRowMapper<>(Teacher.class);
+        return jdbcTemplate.query(sql, rowMapper, "%" + username + "%");
+    }
+
     public Teacher getTeacherById(Integer id) {
         String sql = "SELECT * FROM teacher WHERE id = ?";
         RowMapper<Teacher> rowMapper = new BeanPropertyRowMapper<>(Teacher.class);
