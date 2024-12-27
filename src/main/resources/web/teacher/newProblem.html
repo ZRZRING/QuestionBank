@@ -1,10 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>录入题目</title>
+    <!-- 引入Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </head>
 <body>
+<div id="app">
+    <h1>录入题目</h1>
+    <form @submit.prevent="handleSubmit">
+        <label for="question">录入题目内容：</label><br>
+        <textarea v-model="question" id="question" rows="4" cols="50" placeholder="请输入题目内容"></textarea><br><br>
+        <button type="submit">提交</button>
+        <button type="button" @click="previewQuestion">预览</button>
+    </form>
 
+    <h2>预览题目内容</h2>
+    <div id="previewArea" style="border: 1px solid #000; padding: 10px; margin-top: 20px;">
+        <!-- 遍历 questionList 并展示每个问题 -->
+        <div v-for="(questionItem, index) in questionList" :key="index" class="question-item">
+            <span>{{ questionItem.statement }}</span>
+            <div>
+                <!-- 展示选项列表 -->
+                <div v-for="(option, optIndex) in questionItem.options" :key="optIndex" class="option-item">
+                    {{ option }}
+                </div>
+                <div>{{ questionItem.answers }}</div>
+                <button @click="deleteQuestion(index)">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            question: '',
+            questionList: [],
+            newQuestions: []
+        },
+        methods: {
+            handleSubmit() {
+                console.log('提交的题目内容：', this.questionList);
+            //     遍历questionList，枚举其中的options数组，将其转换为一个字符串，每个元素之间使用<option>分隔
+                this.questionList.forEach((question, index) => {
+                    let optionsHtml = question.options.map(option => `${option}`).join('<option>');
+                    // console.log(`题目${index + 1}的选项HTML: ${optionsHtml}`);
+                    let newquestion = {...question,options:optionsHtml};
+                    console.log(newquestion);
+                    axios.post('http://localhost:8080/api/questions', newquestion);
+                });
+            },
+            previewQuestion() {
+                this.questionList = []; // 初始化questionList为一个空数组
+                const questionsRaw = this.question.split('\n\n');
+                questionsRaw.forEach((q, index) => {
+                    const lines = q.split('\n').filter(line => line !== ''); // 去除空行
+                    const statement = lines[0]; // 第一行作为问题陈述
+                    const options = lines.slice(1, 5).map((option, optIndex) => `${option}`); // 之后四行作为选项
+                    const answers = lines[5];
+                    this.questionList.push({
+                        statement: statement,
+                        options: options,
+                        answers: answers,
+                        createdBy: 1
+                    });
+                });
+            },
+            deleteQuestion(index) {
+                this.questionList.splice(index, 1);
+            }
+        }
+    });
+</script>
 </body>
 </html>

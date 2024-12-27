@@ -35,7 +35,7 @@ public class BankQuestionDao {
     }
 
     public void add(BankQuestion bankQuestion) {
-        String sql = "insert into bank_question(bankId,questionId) values(?,?)";
+        String sql = "insert into bank_question(bank_id,question_id) values(?,?)";
         jdbcTemplate.update(sql,bankQuestion.getBankId(),bankQuestion.getQuestionId());
     }
 

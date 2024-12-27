@@ -35,7 +35,7 @@ public class QuestionDao {
     }
 
     public void save(Question question) {
-        String sql = "INSERT INTO question (statement, options, answers, createdBy) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO question (statement, options, answers, created_by) VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sql, question.getStatement(), question.getOptions(), question.getAnswers(), question.getCreatedBy());
     }
 

@@ -38,15 +38,17 @@
 <body>
 <div id="app">
     <div class="container">
-        <div class="button">
-            <button @click="addQuestion">新增题目</button>
-        </div>
         <div class="bank-info">
             <h2>{{ bank.name }}</h2>
             <p><strong>ID：</strong>{{ bank.id }}</p>
             <p><strong>描述：</strong>{{ bank.description }}</p>
             <p><strong>密码：</strong>{{ bank.password }}</p>
             <p><strong>创建者：</strong>{{ bank.createdBy }}</p>
+        </div>
+        <div>
+            <h3>添加题目</h3>
+            <input type="text" v-model="newQuestionBank.questionId" placeholder="输入题目ID" />
+            <button @click="addQuestion">添加题目</button>
         </div>
         <div class="question-list">
             <h3>详细题目列表</h3>
@@ -65,9 +67,11 @@
         data() {
             return {
                 bank: {id: '', name: '', password:'', description: '', createdBy: '' },
+                newQuestionBank: {questionId: '', bankId: this.getIdFromUrl()},
                 questions: [],
                 detailedQuestions: [],
                 isLoading: true,
+                inputId: '',// 用于绑定输入框的值
                 id: this.getIdFromUrl()
             };
         },
@@ -96,13 +100,18 @@
             },
             async removeQuestion(id) {
                 // 遍历 this.questions 查找questionId == id对应的questions中的id
+                const index = this.questions.findIndex(question => question.questionId === id);
                 // 发送删除请求到服务器
-                // await axios.delete(`http://localhost:8080/api/qBanks/delete/${this.questions[index].id}`);
-                // // 从列表中删除题目
-                // this.detailedQuestions.splice(index, 1);
+                await axios.delete(`http://localhost:8080/api/qBanks/delete/${this.questions[index].id}`);
+                this.fetchQuestions();
             },
             async addQuestion() {
-                alert(this.questions[this.detailedQuestions.length - 1].id)
+                this.newQuestionBank.bankId = this.id;
+                console.log(this.newQuestionBank);
+                await axios.post(`http://localhost:8080/api/qBanks`,this.newQuestionBank);
+                // this.detailedQuestions.push(response.data);
+                this.fetchQuestions();
+                this.inputId = ''; // 清空输入框
             }
         },
         created() {
