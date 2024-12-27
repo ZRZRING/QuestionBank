@@ -119,25 +119,6 @@
             margin-top: 20px;
         }
 
-        .pagination {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .pagination button {
-            background-color: #f1f1f1;
-            padding: 8px 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .pagination button:disabled {
-            background-color: #e0e0e0;
-            cursor: not-allowed;
-        }
-
         /* 响应式设计 */
         @media (max-width: 768px) {
             #app {
@@ -185,7 +166,7 @@
             <tr>
                 <td><strong>选项</strong></td>
                 <td>
-                    <div v-for="(option, index) in question.options.split(',')" :key="index" class="radio-options">
+                    <div v-for="(option, index) in question.options.split('<option>')" :key="index" class="radio-options">
                         <label>
                             <input type="radio"
                                    :name="'question_' + question.id"
@@ -212,7 +193,7 @@
             <p v-else>很遗憾，答错了。正确答案是：{{ question.answers }}</p>
         </div>
 
-        <!-- 上一个和下一个题目按钮 -->
+        <!-- 上一题和下一题按钮 -->
         <div class="navigation-buttons">
             <button v-if="previousQuestionId" @click="navigateToQuestion(previousQuestionId)" class="navigate-button">上一题</button>
             <button v-if="nextQuestionId" @click="navigateToQuestion(nextQuestionId)" class="navigate-button">下一题</button>
@@ -239,9 +220,10 @@
         created() {
             const urlParams = new URLSearchParams(window.location.search);
             const questionId = urlParams.get('questionId');  // 获取URL中的questionId参数
-
+            console.log("BankId = "+this.bankId )
             if (questionId) {
                 this.getQuestionDetails(questionId);  // 获取当前题目详情
+
                 this.getQuestions();  // 获取题库中的所有题目
             } else {
                 console.error('没有提供题目ID');
@@ -250,7 +232,7 @@
         methods: {
             // 获取题库中的所有题目
             getQuestions() {
-                axios.get('http://localhost:8080/api/students/getAllQuestions')  // 假设API能返回所有题目
+                axios.post('http://localhost:8080/api/students/getBankQuestionByBankId/1')  // 假设API能返回该题库的所有题目
                     .then(response => {
                         this.questions = response.data.data;
                     })
@@ -288,13 +270,23 @@
                     return;
                 }
 
+                // 提取出用户选择的答案的字母部分 (例如 "D" 从 "D.毛泽东思想")
+                const userAnswerLetter = this.userAnswer.charAt(0);
+
+                // 提取出正确答案的字母部分 (例如 "D" 从 "答案：D")
+                const correctAnswerLetter = this.question.answers.replace('答案：', '').trim();
+
                 // 判断答案是否正确
-                if (this.userAnswer === this.question.answers) {
+                if (userAnswerLetter === correctAnswerLetter) {
                     this.result = true;  // 用户答对了
                 } else {
                     this.result = false;  // 用户答错了
                 }
+
+                console.log('用户选择的答案:', this.userAnswer);
+                console.log('正确答案:', this.question.answers);
             },
+
 
             // 跳转到指定的题目
             navigateToQuestion(questionId) {

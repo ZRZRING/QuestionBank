@@ -137,7 +137,6 @@
             <tr>
                 <th>题目ID</th>
                 <th>题目内容</th>
-                <th>选项</th>
                 <th>创建者ID</th>
                 <th>操作</th>
             </tr>
@@ -146,7 +145,6 @@
             <tr v-for="question in questions" :key="question.id">
                 <td>{{ question.id }}</td>
                 <td>{{ question.statement }}</td>
-                <td>{{ question.options }}</td>
                 <td>{{ question.createdBy }}</td>
                 <td>
                     <button @click="goToQuestionDetail(question.id)">进入</button>
@@ -204,7 +202,9 @@
             // 进入题目详情页面
             goToQuestionDetail(questionId) {
                 // 跳转到 work_question.html 页面，并传递 questionId
+                // 修改跳转逻辑，将 bankId 和 questionId 都传递
                 window.location.href = `work_question.html?questionId=${questionId}`;
+
             }
         }
     });
