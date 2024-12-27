@@ -9,43 +9,78 @@
     <!-- 引入 Axios CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* 样式 */
+        /* 页面基本样式 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
         .form-container {
-            max-width: 400px;
+            max-width: 500px;
             margin: 50px auto;
-            padding: 20px;
+            padding: 30px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
             display: block;
-            margin-bottom: 5px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
+            font-size: 16px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
         }
 
         .form-group button {
             width: 100%;
-            padding: 10px;
-            border: none;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
             background-color: #007bff;
-            color: white;
-            border-radius: 4px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         .form-group button:hover {
             background-color: #0056b3;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+                max-width: 90%;
+            }
         }
     </style>
 </head>
@@ -57,19 +92,19 @@
         <form @submit.prevent="createBank">
             <div class="form-group">
                 <label for="bankName">题库名称</label>
-                <input type="text" id="bankName" v-model="bank.name">
+                <input type="text" id="bankName" v-model="bank.name" placeholder="请输入题库名称" required>
             </div>
             <div class="form-group">
                 <label for="bankDescription">题库描述</label>
-                <input type="text" id="bankDescription" v-model="bank.description">
+                <input type="text" id="bankDescription" v-model="bank.description" placeholder="请输入题库描述" required>
             </div>
             <div class="form-group">
-            <label for="bankPwd">验证密码</label>
-            <input type="text" id="bankPwd" v-model="bank.password">
+                <label for="bankPwd">验证密码</label>
+                <input type="text" id="bankPwd" v-model="bank.password" placeholder="请输入题库验证密码" required>
             </div>
             <div class="form-group">
                 <label for="createdBy">创建教师</label>
-                <input type="text" id="createdBy" v-model="bank.createdBy">
+                <input type="text" id="createdBy" v-model="bank.createdBy" placeholder="请输入创建教师的ID" required>
             </div>
             <div class="form-group">
                 <button type="submit">创建题库</button>
@@ -90,12 +125,16 @@
              * 创建新题库
              */
             async createBank() {
-                console.log(this.bank);
+                try {
+                    console.log(this.bank);
                     const response = await axios.post("http://localhost:8080/api/banks", this.bank); // 调用后端API创建题库
                     alert("题库创建成功！");
                     window.location.href = './teacher.html';
+                } catch (error) {
+                    console.error("创建题库失败", error);
+                    alert("创建题库失败，请稍后再试！");
+                }
             }
-
         }
     });
 

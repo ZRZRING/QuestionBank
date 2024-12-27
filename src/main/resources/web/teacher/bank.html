@@ -9,55 +9,140 @@
     <!-- 引入 Axios CDN -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        /* 添加一些基本样式 */
+        /* 全局样式 */
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
         }
+
         .container {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
         .bank-info {
             margin-bottom: 20px;
         }
+
+        .bank-info p {
+            font-size: 16px;
+            color: #555;
+        }
+
         .question-list {
+            margin-top: 30px;
+        }
+
+        .question {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .question p {
+            margin: 5px 0;
+        }
+
+        .question button {
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .question button:hover {
+            background-color: #f50057;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
-        .question {
-            border: 1px solid #ddd;
+
+        .input-group input {
+            width: 70%;
             padding: 10px;
-            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
         }
+
+        .input-group button {
+            width: 25%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .input-group button:hover {
+            background-color: #0056b3;
+        }
+
         .button {
             margin-bottom: 10px;
         }
+
+        #previewArea {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
     </style>
 </head>
 <body>
-<div id="app">
-    <div class="container">
-        <div class="bank-info">
-            <h2>{{ bank.name }}</h2>
-            <p><strong>ID：</strong>{{ bank.id }}</p>
-            <p><strong>描述：</strong>{{ bank.description }}</p>
-            <p><strong>密码：</strong>{{ bank.password }}</p>
-            <p><strong>创建者：</strong>{{ bank.createdBy }}</p>
+<div id="app" class="container">
+    <h1>题库详情</h1>
+
+    <div class="bank-info">
+        <h2>{{ bank.name }}</h2>
+        <p><strong>ID：</strong>{{ bank.id }}</p>
+        <p><strong>描述：</strong>{{ bank.description }}</p>
+        <p><strong>密码：</strong>{{ bank.password }}</p>
+        <p><strong>创建者：</strong>{{ bank.createdBy }}</p>
+    </div>
+
+    <!-- 添加题目部分 -->
+    <div>
+        <h3>添加题目</h3>
+        <div class="input-group">
+            <input type="text" v-model="newQuestionBank.questionIds" placeholder="输入题目ID, 多个ID使用英文逗号分隔" />
+            <button @click="addQuestions">添加题目</button>
         </div>
-        <div>
-            <h3>添加题目</h3>
-            <input type="text" v-model="newQuestionBank.questionId" placeholder="输入题目ID" />
-            <button @click="addQuestion">添加题目</button>
-        </div>
-        <div class="question-list">
-            <h3>详细题目列表</h3>
-            <div v-for="question in detailedQuestions" :key="question.id" class="question">
-                <p><strong>陈述：</strong>{{ question.statement }}</p>
-                <p><strong>选项：</strong>{{ question.options }}</p>
-                <p><strong>答案：</strong>{{ question.answers }}</p>
-                <button @click="removeQuestion(question.id)">删除</button>
-            </div>
+    </div>
+
+    <!-- 题目列表 -->
+    <div class="question-list">
+        <h3>详细题目列表</h3>
+        <div v-for="question in detailedQuestions" :key="question.id" class="question">
+            <p><strong>陈述：</strong>{{ question.statement }}</p>
+            <p><strong>选项：</strong></p>
+            <div v-html="question.options"></div>
+            <p><strong>答案：</strong>{{ question.answers }}</p>
+            <button @click="removeQuestion(question.id)">删除</button>
         </div>
     </div>
 </div>
@@ -66,12 +151,21 @@
     const app = Vue.createApp({
         data() {
             return {
-                bank: {id: '', name: '', password:'', description: '', createdBy: '' },
-                newQuestionBank: {questionId: '', bankId: this.getIdFromUrl()},
+                bank: {
+                    id: '',
+                    name: '',
+                    password: '',
+                    description: '',
+                    createdBy: ''
+                },
+                newQuestionBank: {
+                    questionIds: '', // 定义批量题目ID的字符串
+                    bankId: this.getIdFromUrl()
+                },
                 questions: [],
                 detailedQuestions: [],
                 isLoading: true,
-                inputId: '',// 用于绑定输入框的值
+                inputId: '', // 用于绑定输入框的值
                 id: this.getIdFromUrl()
             };
         },
@@ -87,31 +181,35 @@
             async fetchQuestions() {
                 const response = await axios.get(`http://localhost:8080/api/qBanks/bank/${this.getIdFromUrl()}`);
                 this.questions = response.data;
-                    // 清空已有的详细题目数据
                 this.detailedQuestions = [];
+                for (const question of this.questions) {
+                    const questionResponse = await axios.get(`http://localhost:8080/api/questions/${question.questionId}`);
+                    const detailedQuestion = questionResponse.data;
 
-                // 遍历题目ID，获取每个题目的详细信息
-                for (const questionId of this.questions.map(question => question.questionId)) {
-                    const questionResponse = await axios.get(`http://localhost:8080/api/questions/${questionId}`);
-                    // alert(`http://localhost:8080/api/questions/${questionId}`)
-                    this.detailedQuestions.push(questionResponse.data);
+                    // 替换 options 中的 <option> 为换行符
+                    if (detailedQuestion.options) {
+                        detailedQuestion.options = detailedQuestion.options.replace(/<option>/g, '<br>');
+                    }
+
+                    this.detailedQuestions.push(detailedQuestion);
                 }
                 console.log(this.detailedQuestions);
             },
             async removeQuestion(id) {
-                // 遍历 this.questions 查找questionId == id对应的questions中的id
                 const index = this.questions.findIndex(question => question.questionId === id);
-                // 发送删除请求到服务器
                 await axios.delete(`http://localhost:8080/api/qBanks/delete/${this.questions[index].id}`);
                 this.fetchQuestions();
             },
-            async addQuestion() {
-                this.newQuestionBank.bankId = this.id;
-                console.log(this.newQuestionBank);
-                await axios.post(`http://localhost:8080/api/qBanks`,this.newQuestionBank);
-                // this.detailedQuestions.push(response.data);
+            async addQuestions() {
+                const questionIds = this.newQuestionBank.questionIds.split(',').map(id => id.trim());
+                const bankId = this.id;
+                console.log(questionIds);
+                for (const questionId of questionIds) {
+                    await axios.post(`http://localhost:8080/api/qBanks`, { questionId, bankId });
+                }
+
                 this.fetchQuestions();
-                this.inputId = ''; // 清空输入框
+                this.newQuestionBank.questionIds = ''; // 清空输入框
             }
         },
         created() {
@@ -119,7 +217,6 @@
             this.fetchQuestions();
         }
     });
-
     app.mount('#app');
 </script>
 </body>
