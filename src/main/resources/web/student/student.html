@@ -304,7 +304,7 @@
                 searchQuery: "",
                 currentPage: 1,
                 currentFilteredPage: 1,
-                pageSize: 5,
+                pageSize: 10,
             };
         },
         computed: {
@@ -326,8 +326,10 @@
             }
         },
         created() {
+            // 获取学生id
+          //  const studentId = localStorage.getItem('id');
             const studentId = 1;
-            this.getStudentInfo(studentId);
+                this.getStudentInfo(studentId);
             this.getStudentBanks(studentId);
         },
         methods: {
