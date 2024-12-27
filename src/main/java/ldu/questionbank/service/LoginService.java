@@ -31,7 +31,7 @@ public class LoginService {
     }
 
     private Integer teacherLogin(Teacher teacher) {
-        Admin checkTeacher = adminDao.getAdminByUsername(teacher.getUsername());
+        Teacher checkTeacher = teacherDao.getTeacherByUsername(teacher.getUsername());
         if (teacher.getPassword().equals(checkTeacher.getPassword())) {
             return checkTeacher.getId();
         } else {
@@ -40,9 +40,9 @@ public class LoginService {
     }
 
     private Integer studentLogin(Student student) {
-        Admin checkStudent = adminDao.getAdminByUsername(student.getUsername());
+        Student checkStudent = studentDao.getStudentByUsername(student.getUsername());
         if (student.getPassword().equals(checkStudent.getPassword())) {
-            return student.getId();
+            return checkStudent.getId();
         } else {
             return 0;
         }
