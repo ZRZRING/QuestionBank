@@ -45,4 +45,10 @@ public class TeacherController {
     public void deleteTeacherById(@PathVariable Integer id) {
         teacherService.deleteTeacher(id);
     }
+
+    @PutMapping("/updatePassword/{id}")
+    public void updatePassword(@PathVariable Integer id, @RequestBody Teacher teacher) {
+        String password = teacher.getPassword();
+        teacherService.updatePassword(id, password);
+    }
 }

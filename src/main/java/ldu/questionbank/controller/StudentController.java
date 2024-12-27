@@ -49,6 +49,14 @@ public class StudentController {
         return Result.success();
     }
 
+    @PutMapping("/updatePassword/{id}")
+    public Result updatePassword(@PathVariable Integer id, @RequestBody Student student) {
+        String password = student.getPassword();
+        System.out.println(password);
+        studentService.updatePassword(id, password);
+        return Result.success();
+    }
+
     // 通过Id 获取 bank信息
     @GetMapping("/getPasswordFromBanksById/{id}")
     public Result getPasswordFromBanksById(@PathVariable(value = "id") Integer id) {

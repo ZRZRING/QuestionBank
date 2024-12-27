@@ -44,6 +44,11 @@ public class TeacherDao {
         }
     }
 
+    public void updatePassword(Integer id, String password) {
+        String sql = "UPDATE teacher SET password = ? WHERE id = ?";
+        jdbcTemplate.update(sql, password, id);
+    }
+
     public Teacher addTeacher(Teacher teacher) {
         String sql = "INSERT INTO teacher (username, password) VALUES (?, ?)";
         jdbcTemplate.update(sql, teacher.getUsername(), teacher.getPassword());

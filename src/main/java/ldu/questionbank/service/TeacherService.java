@@ -37,4 +37,8 @@ public class TeacherService {
     public void deleteTeacher(Integer id) {
         teacherDao.deleteTeacher(id);
     }
+
+    public void updatePassword(Integer id, String password) {
+        teacherDao.updatePassword(id, password);
+    }
 }

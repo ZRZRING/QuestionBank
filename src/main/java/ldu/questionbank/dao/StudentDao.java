@@ -43,6 +43,11 @@ public class StudentDao {
         return jdbcTemplate.queryForObject(sql, rowMapper, student.getUsername());
     }
 
+    public void updatePassword(Integer id, String password) {
+        String sql = "update student set password = ? where id = ?";
+        jdbcTemplate.update(sql, password, id);
+    }
+
     public void deleteStudentById(int id) {
         String sql = "delete from student where id = ?";
         jdbcTemplate.update(sql, id);

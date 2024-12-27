@@ -29,6 +29,7 @@
                     <span>{{ teacher.username }}</span>
                     <div>
                         <button @click="deleteTeacher(teacher.id)" class="btn btn-sm btn-danger">删除</button>
+                        <button @click="openPasswordModal(teacher)" class="btn btn-sm btn-warning ml-2">修改密码</button>
                     </div>
                 </li>
             </ul>
@@ -44,6 +45,26 @@
             </ul>
         </nav>
     </div>
+    <div v-if="showPasswordModal" class="modal fade show" tabindex="-1" style="display: block;" aria-modal="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改密码</h5>
+                    <button type="button" class="btn-close" @click="closePasswordModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">新密码</label>
+                        <input type="password" id="newPassword" class="form-control" v-model="newPassword">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="closePasswordModal">关闭</button>
+                    <button type="button" class="btn btn-primary" @click="updatePassword">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -57,6 +78,9 @@
                 errorMessage: "",
                 apiUrl: "http://localhost:8080/api/teachers",
                 searchQuery: "",
+                showPasswordModal: false, // 控制修改密码弹窗的显示
+                selectedTeacher: null, // 当前选中的学生
+                newPassword: "", // 新密码输入框
             };
         },
         computed: {
@@ -97,15 +121,15 @@
                 this.handleRequest("delete", url);
             },
             changePage(page) {
-                if (page < 1 || page > this.totalPages) return; // 不合法的页码
-                this.currentPage = page; // 更新当前页码
+                if (page < 1 || page > this.totalPages) return;
+                this.currentPage = page;
                 this.updateCurrentPageData();
             },
             updateCurrentPageData() {
                 if (Array.isArray(this.teachers)) {
-                    const start = (this.currentPage - 1) * this.pageSize; // 计算起始位置
-                    const end = start + this.pageSize; // 计算结束位置
-                    this.currentTeachers = this.teachers.slice(start, end); // 更新当前页的数据
+                    const start = (this.currentPage - 1) * this.pageSize;
+                    const end = start + this.pageSize;
+                    this.currentTeachers = this.teachers.slice(start, end);
                 } else {
                     this.currentTeachers = [];
                 }
@@ -114,6 +138,38 @@
                 this.currentPage = 1;
                 this.fetchTeachers(this.searchQuery);
             },
+
+            openPasswordModal(teacher) {
+                this.selectedTeacher = teacher;
+                this.newPassword = "";
+                this.showPasswordModal = true;
+            },
+
+            closePasswordModal() {
+                this.showPasswordModal = false;
+                this.selectedTeacher = null;
+            },
+
+            updatePassword() {
+                if (!this.newPassword) {
+                    this.errorMessage = "新密码不能为空";
+                    return;
+                }
+                const url = `${this.apiUrl}/updatePassword/${this.selectedTeacher.id}`;
+                this.apiRequest("put", url, {
+                    id: this.selectedTeacher.id,
+                    username: this.selectedTeacher.username,
+                    password: this.newPassword,
+                })
+                    .then(() => {
+                        this.closePasswordModal();
+                        this.fetchTeachers();
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        this.errorMessage = "修改密码失败，请稍后再试";
+                    });
+            }
         },
         mounted() {
             this.fetchTeachers();

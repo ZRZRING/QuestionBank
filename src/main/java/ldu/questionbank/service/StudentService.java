@@ -77,4 +77,8 @@ public class StudentService {
     public Bank findBankById(Integer bankId) {
         return studentDao.findBankById(bankId);
     }
+
+    public void updatePassword(Integer id, String newPassword) {
+        studentDao.updatePassword(id, newPassword);
+    }
 }
