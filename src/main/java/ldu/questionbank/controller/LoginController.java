@@ -6,6 +6,8 @@ import ldu.questionbank.service.LoginService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLOutput;
+
 @RestController
 @RequestMapping("/api")
 public class LoginController {
@@ -17,10 +19,11 @@ public class LoginController {
 
     @PostMapping("/login")
     public Result login(@RequestBody LoginRequest loginRequest) {
-        boolean result = loginService.login(loginRequest);
+        Integer result = loginService.login(loginRequest);
         System.out.println(result);
-        if (result) {
-            return Result.success(loginRequest);
+        System.out.println(loginRequest);
+        if (!result.equals(0)) {
+            return Result.success(result);
         } else {
             return Result.error("用户名或密码错误");
         }

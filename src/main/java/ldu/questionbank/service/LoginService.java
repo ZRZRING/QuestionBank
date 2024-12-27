@@ -21,45 +21,52 @@ public class LoginService {
         this.studentDao = studentDao;
     }
 
-    private boolean adminLogin(Admin admin) {
+    private Integer adminLogin(Admin admin) {
         Admin checkAdmin = adminDao.getAdminByUsername(admin.getUsername());
-        return admin.getPassword().equals(checkAdmin.getPassword());
-    }
-
-    private boolean teacherLogin(Teacher teacher) {
-        Admin checkAdmin = adminDao.getAdminByUsername(teacher.getUsername());
-        return teacher.getPassword().equals(checkAdmin.getPassword());
-    }
-
-    private boolean studentLogin(Student student) {
-        Admin checkAdmin = adminDao.getAdminByUsername(student.getUsername());
-        return student.getPassword().equals(checkAdmin.getPassword());
-    }
-
-    public boolean login(LoginRequest loginRequest) {
-        switch (loginRequest.getRole()) {
-            case "admin" -> {
-                Admin admin = new Admin();
-                admin.setUsername(loginRequest.getUsername());
-                admin.setPassword(loginRequest.getPassword());
-                loginRequest.setId(admin.getId());
-                return adminLogin(admin);
-            }
-            case "teacher" -> {
-                Teacher teacher = new Teacher();
-                teacher.setUsername(loginRequest.getUsername());
-                teacher.setPassword(loginRequest.getPassword());
-                loginRequest.setId(teacher.getId());
-                return teacherLogin(teacher);
-            }
-            case "student" -> {
-                Student student = new Student();
-                student.setUsername(loginRequest.getUsername());
-                student.setPassword(loginRequest.getPassword());
-                loginRequest.setId(student.getId());
-                return studentLogin(student);
-            }
+        if (admin.getPassword().equals(checkAdmin.getPassword())) {
+            return checkAdmin.getId();
+        } else {
+            return 0;
         }
-        return false;
+    }
+
+    private Integer teacherLogin(Teacher teacher) {
+        Admin checkTeacher = adminDao.getAdminByUsername(teacher.getUsername());
+        if (teacher.getPassword().equals(checkTeacher.getPassword())) {
+            return checkTeacher.getId();
+        } else {
+            return 0;
+        }
+    }
+
+    private Integer studentLogin(Student student) {
+        Admin checkStudent = adminDao.getAdminByUsername(student.getUsername());
+        if (student.getPassword().equals(checkStudent.getPassword())) {
+            return student.getId();
+        } else {
+            return 0;
+        }
+    }
+
+    public Integer login(LoginRequest loginRequest) {
+        if (loginRequest.getRole().equals("admin")) {
+            Admin admin = new Admin();
+            admin.setUsername(loginRequest.getUsername());
+            admin.setPassword(loginRequest.getPassword());
+            return adminLogin(admin);
+        }
+        if (loginRequest.getRole().equals("teacher")) {
+            Teacher teacher = new Teacher();
+            teacher.setUsername(loginRequest.getUsername());
+            teacher.setPassword(loginRequest.getPassword());
+            return teacherLogin(teacher);
+        }
+        if (loginRequest.getRole().equals("student")) {
+            Student student = new Student();
+            student.setUsername(loginRequest.getUsername());
+            student.setPassword(loginRequest.getPassword());
+            return studentLogin(student);
+        }
+        return 0;
     }
 }
