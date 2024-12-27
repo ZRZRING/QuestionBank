@@ -112,13 +112,6 @@
             margin-top: 20px;
         }
 
-        /* 上一题和下一题按钮的排列 */
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
         /* 响应式设计 */
         @media (max-width: 768px) {
             #app {
@@ -192,12 +185,6 @@
             <p v-if="result">恭喜，答对了！</p>
             <p v-else>很遗憾，答错了。正确答案是：{{ question.answers }}</p>
         </div>
-
-        <!-- 上一题和下一题按钮 -->
-        <div class="navigation-buttons">
-            <button v-if="previousQuestionId" @click="navigateToQuestion(previousQuestionId)" class="navigate-button">上一题</button>
-            <button v-if="nextQuestionId" @click="navigateToQuestion(nextQuestionId)" class="navigate-button">下一题</button>
-        </div>
     </div>
 
     <div v-else>
@@ -212,55 +199,27 @@
                 question: null,  // 存储当前题目信息
                 userAnswer: '',  // 存储用户选择的答案
                 result: null,  // 存储用户答题结果，null代表未作答
-                questions: [],  // 存储题库中的所有题目
-                previousQuestionId: null,  // 上一题的ID
-                nextQuestionId: null,  // 下一题的ID
             };
         },
         created() {
             const urlParams = new URLSearchParams(window.location.search);
             const questionId = urlParams.get('questionId');  // 获取URL中的questionId参数
-            console.log("BankId = "+this.bankId )
             if (questionId) {
                 this.getQuestionDetails(questionId);  // 获取当前题目详情
-
-                this.getQuestions();  // 获取题库中的所有题目
             } else {
                 console.error('没有提供题目ID');
             }
         },
         methods: {
-            // 获取题库中的所有题目
-            getQuestions() {
-                axios.post('http://localhost:8080/api/students/getBankQuestionByBankId/1')  // 假设API能返回该题库的所有题目
-                    .then(response => {
-                        this.questions = response.data.data;
-                    })
-                    .catch(error => {
-                        console.error('获取题库失败', error);
-                    });
-            },
-
             // 获取题目详情
             getQuestionDetails(questionId) {
                 axios.post(`http://localhost:8080/api/students/findQuestionById/${questionId}`)
                     .then(response => {
                         this.question = response.data.data;  // 保存题目信息
-                        this.updateNavigation(questionId);  // 更新上一题和下一题的ID
                     })
                     .catch(error => {
                         console.error('获取题目信息失败', error);
                     });
-            },
-
-            // 更新上一题和下一题的ID
-            updateNavigation(currentQuestionId) {
-                const currentIndex = this.questions.findIndex(q => q.id === currentQuestionId);
-
-                if (currentIndex !== -1) {
-                    this.previousQuestionId = currentIndex > 0 ? this.questions[currentIndex - 1].id : null;
-                    this.nextQuestionId = currentIndex < this.questions.length - 1 ? this.questions[currentIndex + 1].id : null;
-                }
             },
 
             // 提交答案并检查是否正确
@@ -286,14 +245,6 @@
                 console.log('用户选择的答案:', this.userAnswer);
                 console.log('正确答案:', this.question.answers);
             },
-
-
-            // 跳转到指定的题目
-            navigateToQuestion(questionId) {
-                if (questionId) {
-                    window.location.href = `work_question.html?questionId=${questionId}`;
-                }
-            }
         }
     });
 
